@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horwood HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;min-height:100vh;overflow-x:hidden}
+body{font-family:'Nunito',sans-serif;background:#080e24;color:#e8dcc8}
+.screen{width:100%;min-height:100vh;display:none;flex-direction:column}
+.screen.active{display:flex}
+#s-pick{align-items:center;justify-content:center;padding:2.5rem 1.5rem;position:relative;overflow:hidden;background:#080e24}
+#s-pin,#s-master,#s-admin{align-items:center;justify-content:center;padding:2rem 1.5rem;position:relative;overflow:hidden;background:#080e24}
+
+/* PORTAL */
+#portal-overlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center}
+#portal-overlay.active{display:flex}
+.portal-ring{position:absolute;border-radius:50%;border:2px solid transparent;animation:portalSpin linear infinite}
+@keyframes portalSpin{to{transform:rotate(360deg)}}
+.portal-core{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:2;animation:portalPulse 0.5s ease-in-out infinite alternate;font-size:2.5rem}
+@keyframes portalPulse{0%{transform:scale(0.88)}100%{transform:scale(1.12)}}
+@keyframes portalExpand{0%{transform:scale(0);opacity:1}65%{opacity:1;transform:scale(10)}100%{opacity:0;transform:scale(20)}}
+.portal-burst{position:absolute;width:180px;height:180px;border-radius:50%;animation:portalExpand 1.1s ease-in forwards}
+
+/* LANDING BG */
+.pick-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.pick-orb{position:absolute;border-radius:50%;filter:blur(90px)}
+.pick-orb1{width:380px;height:380px;background:#c8860a;top:-100px;left:-80px;opacity:0.14;animation:orbBreath 7s ease-in-out infinite alternate}
+.pick-orb2{width:320px;height:320px;background:#1a3a8f;bottom:-80px;right:-60px;opacity:0.16;animation:orbBreath 9s ease-in-out infinite alternate;animation-delay:-4s}
+.pick-orb3{width:200px;height:200px;background:#6d28d9;top:35%;left:55%;opacity:0.1;animation:orbBreath 6s ease-in-out infinite alternate;animation-delay:-2s}
+@keyframes orbBreath{0%{transform:scale(1)}100%{transform:scale(1.2)}}
+.pick-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(197,160,80,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(197,160,80,0.04) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 75% 75% at 50% 50%,transparent 35%,black 100%)}
+.pick-spark{position:absolute;width:2px;height:2px;border-radius:50%;background:#f5c842;opacity:0;animation:pickSpark var(--d) ease-in-out infinite;animation-delay:var(--dl)}
+@keyframes pickSpark{0%,100%{opacity:0;transform:scale(0)}45%{opacity:1;transform:scale(1) translateY(-20px)}80%{opacity:0;transform:scale(0) translateY(-40px)}}
+
+/* LANDING HEADER */
+.hq-header{text-align:center;margin-bottom:2.5rem;position:relative;z-index:1}
+.hq-eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:'Crimson Pro',serif;font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;color:#c5a050;margin-bottom:0.75rem;font-style:italic}
+.hq-eyebrow::before,.hq-eyebrow::after{content:'';display:inline-block;width:30px;height:1px;background:linear-gradient(90deg,transparent,#c5a050)}
+.hq-title{font-family:'MedievalSharp',serif;font-size:clamp(2.6rem,9vw,5rem);color:#f5c842;line-height:1;text-shadow:0 0 50px rgba(245,200,66,0.35),0 0 100px rgba(245,200,66,0.12),0 3px 0 rgba(0,0,0,0.7)}
+.hq-sub{font-family:'Crimson Pro',serif;font-size:1.1rem;color:#c5a050;margin-top:0.5rem;letter-spacing:0.08em;font-style:italic}
+.hq-rule{display:flex;align-items:center;gap:14px;margin:1rem auto 0;width:fit-content}
+.hq-rule::before,.hq-rule::after{content:'';display:block;width:55px;height:1px;background:linear-gradient(90deg,transparent,rgba(197,160,80,0.6))}
+.hq-rule-gem{width:8px;height:8px;background:#f5c842;transform:rotate(45deg);box-shadow:0 0 10px rgba(245,200,66,0.6)}
+.who-ask{font-family:'Crimson Pro',serif;font-size:1.25rem;color:rgba(232,220,200,0.65);letter-spacing:0.06em;font-style:italic;text-align:center;margin-bottom:1.75rem;position:relative;z-index:1}
+
+/* PROFILE CARDS */
+.profiles{display:flex;gap:1.75rem;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.pcard{width:220px;border-radius:16px;cursor:pointer;overflow:hidden;border:2px solid rgba(197,160,80,0.18);transition:transform 0.38s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s,border-color 0.3s;position:relative;background:#0c0e1a}
+.pcard:hover{transform:translateY(-14px) scale(1.04)}
+.pcard.monster:hover{border-color:rgba(134,239,172,0.6);box-shadow:0 28px 80px rgba(134,239,172,0.18),0 0 0 1px rgba(134,239,172,0.1)}
+.pcard.monkey:hover{border-color:rgba(251,191,36,0.6);box-shadow:0 28px 80px rgba(251,191,36,0.22),0 0 0 1px rgba(251,191,36,0.1)}
+.pcard-crest{height:6px;width:100%}
+.pcard.monster .pcard-crest{background:linear-gradient(90deg,#14532d,#4ade80,#c5a050,#4ade80,#14532d)}
+.pcard.monkey .pcard-crest{background:linear-gradient(90deg,#78350f,#fbbf24,#c5a050,#fbbf24,#78350f)}
+.pcard-top{padding:1.5rem 1.25rem 0.75rem;text-align:center;position:relative}
+.pcard-nick{font-family:'MedievalSharp',serif;font-size:1.65rem;text-shadow:0 2px 14px rgba(0,0,0,0.6);margin-top:0.6rem}
+.pcard.monster .pcard-nick{color:#86efac}
+.pcard.monkey .pcard-nick{color:#fbbf24}
+.pcard-real{font-size:0.7rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(197,160,80,0.55);font-weight:700;margin-top:3px}
+.pcard-body{padding:0.9rem 1.25rem;border-top:1px solid rgba(197,160,80,0.08)}
+.xp-lbl{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:rgba(197,160,80,0.45);margin-bottom:5px}
+.xp-track{height:5px;border-radius:100px;background:rgba(255,255,255,0.06);margin-bottom:9px;overflow:hidden}
+.xp-fill{height:5px;border-radius:100px}
+.pcard.monster .xp-fill{background:linear-gradient(90deg,#166534,#86efac)}
+.pcard.monkey .xp-fill{background:linear-gradient(90deg,#92400e,#fbbf24)}
+.pcard-stats{font-size:0.76rem;color:rgba(232,220,200,0.38);font-weight:700;margin-bottom:11px}
+.pcard-btn{width:100%;padding:10px;border:none;border-radius:8px;cursor:pointer;font-family:'MedievalSharp',serif;font-size:0.92rem;letter-spacing:0.03em;transition:all 0.2s}
+.pcard.monster .pcard-btn{background:linear-gradient(135deg,#14532d,#16a34a);color:#dcfce7}
+.pcard.monster .pcard-btn:hover{background:linear-gradient(135deg,#16a34a,#86efac);color:#14532d}
+.pcard.monkey .pcard-btn{background:linear-gradient(135deg,#78350f,#d97706);color:#fef3c7}
+.pcard.monkey .pcard-btn:hover{background:linear-gradient(135deg,#d97706,#fbbf24);color:#451a03}
+.aunty-seal{margin-top:2rem;text-align:center;font-family:'Crimson Pro',serif;font-style:italic;font-size:0.82rem;color:rgba(197,160,80,0.35);letter-spacing:0.08em;position:relative;z-index:1}
+
+/* FLAME */
+.secret-flame{position:absolute;top:16px;right:18px;width:20px;height:26px;cursor:pointer;opacity:0.15;z-index:10;transition:opacity 0.5s}
+.secret-flame:hover{opacity:0.65}
+.secret-flame svg{width:100%;height:100%;animation:flameTick 2.6s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes flameTick{0%,100%{transform:scaleX(1) rotate(-1.5deg)}25%{transform:scaleX(0.9) scaleY(1.08) rotate(1.5deg)}50%{transform:scaleX(1.06) scaleY(0.95) rotate(-2deg)}75%{transform:scaleX(0.94) scaleY(1.05) rotate(2deg)}}
+
+/* PIN */
+.pin-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.pin-orb1{position:absolute;width:350px;height:350px;border-radius:50%;background:#c8860a;top:-100px;left:-80px;opacity:0.11;filter:blur(80px);animation:orbBreath 7s ease-in-out infinite alternate}
+.pin-orb2{position:absolute;width:300px;height:300px;border-radius:50%;background:#1e3a8f;bottom:-80px;right:-60px;opacity:0.13;filter:blur(80px);animation:orbBreath 9s ease-in-out infinite alternate;animation-delay:-4s}
+.pin-box{background:linear-gradient(160deg,#0e1628,#060a14);border:1px solid rgba(197,160,80,0.2);border-radius:12px;padding:2.25rem;width:100%;max-width:340px;text-align:center;position:relative;z-index:1;box-shadow:0 30px 80px rgba(0,0,0,0.5),inset 0 1px 0 rgba(197,160,80,0.1)}
+.pin-title{font-family:'MedievalSharp',serif;font-size:1.5rem;margin-bottom:0.3rem}
+.pin-title.monster{color:#86efac}.pin-title.monkey{color:#fbbf24}.pin-title.master{color:#f5c842}
+.pin-sub{font-family:'Crimson Pro',serif;font-style:italic;font-size:0.9rem;color:rgba(197,160,80,0.55);margin-bottom:1.75rem}
+.pin-dots{display:flex;gap:16px;justify-content:center;margin-bottom:1.5rem}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(197,160,80,0.3);background:transparent;transition:all 0.25s}
+.pin-dot.filled.monster{background:#86efac;border-color:#86efac;box-shadow:0 0 14px rgba(134,239,172,0.7)}
+.pin-dot.filled.monkey{background:#fbbf24;border-color:#fbbf24;box-shadow:0 0 14px rgba(251,191,36,0.7)}
+.pin-dot.filled.master{background:#f5c842;border-color:#f5c842;box-shadow:0 0 14px rgba(245,200,66,0.7)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.pin-key{padding:15px;border-radius:8px;border:1px solid rgba(197,160,80,0.12);background:linear-gradient(160deg,rgba(197,160,80,0.06),rgba(197,160,80,0.02));cursor:pointer;font-family:'MedievalSharp',serif;font-size:1.4rem;color:#f5c842;transition:all 0.14s;user-select:none;box-shadow:0 2px 8px rgba(0,0,0,0.3),inset 0 1px 0 rgba(197,160,80,0.08)}
+.pin-key:hover{background:linear-gradient(160deg,rgba(197,160,80,0.18),rgba(197,160,80,0.08));transform:scale(1.07);border-color:rgba(197,160,80,0.3)}
+.pin-key:active{transform:scale(0.94)}
+.pin-key.sm{font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:800;color:rgba(197,160,80,0.45)}
+.pin-err{color:#fca5a5;font-size:0.8rem;font-weight:700;min-height:1.1rem;margin-bottom:0.6rem;font-family:'Crimson Pro',serif;font-style:italic}
+.pin-back{background:transparent;border:none;color:rgba(197,160,80,0.35);font-family:'Nunito',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer;margin-top:0.3rem;transition:color 0.2s}
+.pin-back:hover{color:#c5a050}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+.shake{animation:shake 0.38s ease}
+
+/* WORLDS */
+#s-monster{background:#07050a;position:relative;overflow:hidden}
+#s-monkey{background:#060800;position:relative;overflow:hidden}
+.world-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.world-content{position:relative;z-index:3;display:flex;flex-direction:column;flex:1}
+.world-nav{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;flex-wrap:wrap;gap:0.75rem;border-bottom:1px solid rgba(197,160,80,0.08);background:rgba(0,0,0,0.3);backdrop-filter:blur(8px)}
+.world-name{font-family:'MedievalSharp',serif;font-size:clamp(1.3rem,3.5vw,1.9rem);line-height:1.1}
+.monster-world .world-name{color:#86efac;text-shadow:0 0 25px rgba(134,239,172,0.4)}
+.monkey-world .world-name{color:#ffd700;text-shadow:0 0 25px rgba(255,215,0,0.5)}
+.world-tagline{font-family:'Crimson Pro',serif;font-style:italic;font-size:0.85rem;margin-top:3px}
+.monster-world .world-tagline{color:rgba(134,239,172,0.4)}
+.monkey-world .world-tagline{color:rgba(255,215,0,0.4)}
+.world-leave-btn{background:rgba(0,0,0,0.4);border:1px solid rgba(197,160,80,0.15);color:rgba(197,160,80,0.5);padding:7px 16px;border-radius:6px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.78rem;transition:all 0.2s}
+.world-leave-btn:hover{background:rgba(0,0,0,0.6);color:#c5a050;border-color:rgba(197,160,80,0.3)}
+.world-stats-bar{display:flex;gap:10px;padding:1rem 1.5rem;flex-wrap:wrap;border-bottom:1px solid rgba(197,160,80,0.06)}
+.wstat{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:8px;backdrop-filter:blur(4px)}
+.monster-world .wstat{background:rgba(22,101,52,0.22);border:1px solid rgba(134,239,172,0.1)}
+.monkey-world .wstat{background:rgba(120,80,0,0.3);border:1px solid rgba(255,215,0,0.15)}
+.wstat-icon{width:18px;height:18px;flex-shrink:0}
+.wstat-val{font-family:'MedievalSharp',serif;font-size:1.1rem;line-height:1}
+.monster-world .wstat-val{color:#86efac}
+.monkey-world .wstat-val{color:#ffd700}
+.wstat-lbl{font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28)}
+.treasure-room{padding:1.25rem 1.5rem 3rem;flex:1}
+.room-hdr{display:flex;align-items:center;gap:12px;margin-bottom:0.75rem}
+.room-hdr-icon{width:20px;height:20px;flex-shrink:0}
+.room-hdr-title{font-family:'MedievalSharp',serif;font-size:1.05rem}
+.monster-world .room-hdr-title{color:rgba(134,239,172,0.65)}
+.monkey-world .room-hdr-title{color:rgba(255,215,0,0.7)}
+.room-hdr-line{flex:1;height:1px}
+.monster-world .room-hdr-line{background:linear-gradient(90deg,rgba(134,239,172,0.2),rgba(197,160,80,0.08),transparent)}
+.monkey-world .room-hdr-line{background:linear-gradient(90deg,rgba(255,215,0,0.25),rgba(197,160,80,0.08),transparent)}
+.room-lore{padding:0.7rem 1rem;border-radius:6px;margin-bottom:1.25rem;font-family:'Crimson Pro',serif;font-style:italic;font-size:0.86rem;display:flex;align-items:center;gap:10px}
+.monster-world .room-lore{background:rgba(22,101,52,0.18);border:1px solid rgba(134,239,172,0.08);color:rgba(134,239,172,0.5)}
+.monkey-world .room-lore{background:rgba(120,80,0,0.2);border:1px solid rgba(255,215,0,0.1);color:rgba(255,215,0,0.55)}
+.stories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:1.25rem}
+.story-book{border-radius:8px;cursor:pointer;position:relative;overflow:hidden;min-height:210px;display:flex;flex-direction:column;transition:transform 0.32s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s}
+.monster-world .story-book{background:linear-gradient(155deg,#0a1d0d,#050c06);border:1px solid rgba(134,239,172,0.16)}
+.monkey-world .story-book{background:linear-gradient(155deg,#1a1000,#0c0600);border:1px solid rgba(255,215,0,0.2)}
+.story-book:hover{transform:translateY(-9px) rotate(1.2deg)}
+.monster-world .story-book:hover{box-shadow:0 22px 65px rgba(134,239,172,0.18),0 0 0 1px rgba(134,239,172,0.3)}
+.monkey-world .story-book:hover{box-shadow:0 22px 65px rgba(255,215,0,0.25),0 0 0 1px rgba(255,215,0,0.3)}
+.book-spine{position:absolute;left:0;top:0;bottom:0;width:7px}
+.monster-world .book-spine{background:linear-gradient(180deg,#14532d,#166534,#86efac,#166534,#14532d)}
+.monkey-world .book-spine{background:linear-gradient(180deg,#78350f,#92400e,#ffd700,#92400e,#78350f)}
+.book-cover{padding:1.1rem 1rem 1rem 1.3rem;flex:1;display:flex;flex-direction:column;position:relative;z-index:1}
+.book-icon-wrap{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:0.65rem}
+.monster-world .book-icon-wrap{background:rgba(134,239,172,0.08);border:1px solid rgba(134,239,172,0.12)}
+.monkey-world .book-icon-wrap{background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15)}
+.book-icon-wrap svg{width:24px;height:24px;animation:bookBob 3.2s ease-in-out infinite}
+@keyframes bookBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.monster-world .book-icon-wrap svg{stroke:#86efac}
+.monkey-world .book-icon-wrap svg{stroke:#ffd700}
+.book-title{font-family:'MedievalSharp',serif;font-size:0.9rem;line-height:1.35;margin-bottom:0.35rem;flex:1}
+.monster-world .book-title{color:#86efac}
+.monkey-world .book-title{color:#ffd700}
+.book-author{font-family:'Crimson Pro',serif;font-style:italic;font-size:0.7rem;color:rgba(197,160,80,0.45)}
+.book-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:100px;font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;margin-top:9px}
+.monster-world .book-badge{background:rgba(134,239,172,0.08);color:#86efac;border:1px solid rgba(134,239,172,0.18)}
+.monkey-world .book-badge{background:rgba(255,215,0,0.08);color:#ffd700;border:1px solid rgba(255,215,0,0.2)}
+.book-badge svg{width:8px;height:8px}
+.monster-world .book-badge svg{stroke:#86efac}
+.monkey-world .book-badge svg{stroke:#ffd700}
+.story-scroll{cursor:pointer;position:relative;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.story-scroll:hover{transform:translateY(-7px) scale(1.04)}
+.scroll-outer{border-radius:8px;overflow:hidden;position:relative;min-height:160px;display:flex;flex-direction:column}
+.monster-world .scroll-outer{background:linear-gradient(155deg,#111f0c,#080f06);border:1px solid rgba(134,239,172,0.1)}
+.monkey-world .scroll-outer{background:linear-gradient(155deg,#1a1000,#0d0800);border:1px solid rgba(255,215,0,0.1)}
+.scroll-rod{height:13px;margin:0 8px;border-radius:3px}
+.monster-world .scroll-rod{background:linear-gradient(90deg,#713f12,#92400e,#c5a050,#92400e,#713f12)}
+.monkey-world .scroll-rod{background:linear-gradient(90deg,#14532d,#15803d,#86efac,#15803d,#14532d)}
+.scroll-body{padding:0.9rem 0.8rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;text-align:center}
+.scroll-icon-wrap{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:0.2rem}
+.monster-world .scroll-icon-wrap{background:rgba(134,239,172,0.07)}
+.monkey-world .scroll-icon-wrap{background:rgba(255,215,0,0.07)}
+.scroll-icon-wrap svg{width:20px;height:20px;animation:scrollFloat 3.8s ease-in-out infinite}
+.monster-world .scroll-icon-wrap svg{stroke:rgba(134,239,172,0.5)}
+.monkey-world .scroll-icon-wrap svg{stroke:rgba(255,215,0,0.5)}
+@keyframes scrollFloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-6px) rotate(4deg)}}
+.scroll-title{font-family:'MedievalSharp',serif;font-size:0.8rem;line-height:1.3}
+.monster-world .scroll-title{color:rgba(134,239,172,0.45)}
+.monkey-world .scroll-title{color:rgba(255,215,0,0.5)}
+.scroll-sub{font-size:0.62rem;font-weight:700;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.07em}
+.story-locked{opacity:0.32;cursor:default}
+.story-locked:hover{transform:none!important}
+.locked-veil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);border-radius:8px}
+.locked-veil svg{width:28px;height:28px;stroke:rgba(197,160,80,0.35)}
+
+/* READER */
+#s-reader{background:#060a10;flex-direction:column}
+.reader-nav{display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;border-bottom:1px solid rgba(197,160,80,0.08);background:rgba(0,0,0,0.5);flex-shrink:0}
+.reader-back{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid rgba(197,160,80,0.18);color:rgba(197,160,80,0.55);padding:7px 14px;border-radius:6px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.78rem;transition:all 0.2s;white-space:nowrap}
+.reader-back svg{width:14px;height:14px;stroke:currentColor}
+.reader-back:hover{color:#c5a050;border-color:rgba(197,160,80,0.35)}
+.reader-title-bar{font-family:'MedievalSharp',serif;font-size:0.95rem;color:#c5a050;line-height:1.3}
+.reader-body{padding:2rem 1.5rem;max-width:680px;margin:0 auto;width:100%}
+.reader-placeholder{font-family:'Crimson Pro',serif;font-size:1.05rem;color:rgba(232,220,200,0.45);font-style:italic;line-height:1.9;text-align:center;padding:4rem 1rem}
+.reader-placeholder-icon{display:block;margin:0 auto 1.25rem;width:48px;height:48px;stroke:rgba(197,160,80,0.3)}
+
+/* ADMIN */
+.admin-box{background:linear-gradient(160deg,#130e00,#0a0d1a);border:1px solid rgba(245,200,66,0.25);border-radius:12px;padding:2.25rem;width:100%;max-width:410px;box-shadow:0 0 80px rgba(245,200,66,0.06),inset 0 1px 0 rgba(245,200,66,0.08);position:relative;z-index:1}
+.admin-title{font-family:'MedievalSharp',serif;font-size:1.65rem;color:#f5c842;text-align:center;margin-bottom:0.3rem;text-shadow:0 0 20px rgba(245,200,66,0.3)}
+.admin-sub{font-family:'Crimson Pro',serif;font-style:italic;font-size:0.86rem;color:rgba(197,160,80,0.55);text-align:center;margin-bottom:1.5rem}
+.admin-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(197,160,80,0.3),transparent);margin:1.25rem 0}
+.admin-sec{font-family:'MedievalSharp',serif;font-size:0.88rem;color:rgba(197,160,80,0.6);margin-bottom:0.75rem}
+.admin-row{margin-bottom:1.2rem}
+.admin-lbl{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:rgba(197,160,80,0.45);margin-bottom:5px}
+.admin-inp-row{display:flex;gap:8px}
+.admin-inp{flex:1;background:rgba(197,160,80,0.05);border:1px solid rgba(197,160,80,0.18);border-radius:6px;padding:9px 12px;color:#f5c842;font-family:'MedievalSharp',serif;font-size:1.1rem;letter-spacing:0.22em;outline:none;text-align:center;transition:border-color 0.2s}
+.admin-inp:focus{border-color:rgba(197,160,80,0.45)}
+.admin-save-btn{background:linear-gradient(135deg,#78350f,#d97706);color:#fef3c7;border:none;border-radius:6px;padding:9px 18px;cursor:pointer;font-family:'MedievalSharp',serif;font-size:0.88rem;white-space:nowrap;transition:all 0.2s}
+.admin-save-btn:hover{background:linear-gradient(135deg,#d97706,#fbbf24)}
+.admin-ok{font-size:0.76rem;color:#86efac;font-family:'Crimson Pro',serif;font-style:italic;min-height:1.1rem;margin-top:4px}
+.admin-tog-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(197,160,80,0.06)}
+.admin-tog-lbl{font-size:0.8rem;font-weight:700;color:rgba(232,220,200,0.6)}
+.admin-tog-sub{font-size:0.68rem;color:rgba(197,160,80,0.35);margin-top:2px;font-family:'Crimson Pro',serif;font-style:italic}
+.tog{width:42px;height:23px;border-radius:100px;background:rgba(197,160,80,0.08);border:1px solid rgba(197,160,80,0.18);cursor:pointer;position:relative;transition:all 0.3s;flex-shrink:0}
+.tog.on{background:rgba(245,200,66,0.25);border-color:rgba(245,200,66,0.5)}
+.tog::after{content:'';position:absolute;width:17px;height:17px;border-radius:50%;background:rgba(197,160,80,0.35);top:2px;left:2px;transition:all 0.3s}
+.tog.on::after{background:#f5c842;left:21px;box-shadow:0 0 10px rgba(245,200,66,0.6)}
+.admin-close-btn{width:100%;margin-top:1rem;background:transparent;border:1px solid rgba(197,160,80,0.12);color:rgba(197,160,80,0.45);padding:9px;border-radius:6px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.78rem;transition:all 0.2s}
+.admin-close-btn:hover{border-color:rgba(197,160,80,0.35);color:#c5a050}
+</style>
+</head>
+<body>
+
+<!-- PORTAL -->
+<div id="portal-overlay">
+  <div id="portal-burst" class="portal-burst"></div>
+  <div id="portal-rings"></div>
+  <div class="portal-core" id="portal-core"></div>
+</div>
+
+<!-- ═══ LANDING ═══ -->
+<div class="screen active" id="s-pick">
+  <div class="pick-bg">
+    <div class="pick-orb pick-orb1"></div>
+    <div class="pick-orb pick-orb2"></div>
+    <div class="pick-orb pick-orb3"></div>
+    <div class="pick-grid"></div>
+    <div id="pick-sparks"></div>
+  </div>
+
+  <div class="secret-flame" onclick="flameTap()">
+    <svg viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 31C5 31 1 24.5 1 18.5C1 12.5 5 8 8 4C8 8.5 10.5 10.5 12 10.5C10 6.5 13 2 16.5 0C16.5 6 20.5 8 22.5 12.5C24.5 17 22.5 23 18 27C17 24.5 16 21.5 16 18.5C14 21.5 14 26.5 12 31Z" fill="url(#fl1)"/>
+      <path d="M12 29C8 29 5.5 23.5 5.5 19.5C5.5 15.5 8 12.5 10 9.5C10 13.5 11 15.5 12 16.5C11 13.5 13 10.5 15 9C15 13.5 18 15.5 19 18.5C20 21.5 18 25.5 15.5 27.5C15.5 25.5 14.5 23 14 21C13 23.5 13 26.5 12 29Z" fill="url(#fl2)" opacity="0.85"/>
+      <defs>
+        <linearGradient id="fl1" x1="12" y1="0" x2="12" y2="31" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#9a1500"/><stop offset="40%" stop-color="#ea580c"/><stop offset="80%" stop-color="#f97316"/><stop offset="100%" stop-color="#fbbf24"/></linearGradient>
+        <linearGradient id="fl2" x1="12" y1="9" x2="12" y2="29" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#fef9c3"/></linearGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="hq-header">
+    <div class="hq-eyebrow">Welcome to</div>
+    <div class="hq-title">Horwood HQ</div>
+    <div class="hq-sub">Where adventures begin</div>
+    <div class="hq-rule"><div class="hq-rule-gem"></div></div>
+  </div>
+
+  <div class="who-ask">Who enters the portal today?</div>
+
+  <div class="profiles">
+    <!-- MONSTER / BILLY — Pixar-style dragon boy -->
+    <div class="pcard monster" onclick="startLogin('monster')">
+      <div class="pcard-crest"></div>
+      <div class="pcard-top">
+        <!-- Pixar-style Dragon Boy SVG avatar -->
+        <svg width="140" height="150" viewBox="0 0 140 150" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;filter:drop-shadow(0 12px 32px rgba(0,0,0,0.8))">
+          <defs>
+            <radialGradient id="mg1" cx="45%" cy="35%" r="60%"><stop offset="0%" stop-color="#fde68a"/><stop offset="60%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></radialGradient>
+            <radialGradient id="mg2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></radialGradient>
+            <radialGradient id="mg3" cx="50%" cy="30%" r="55%"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#15803d"/></radialGradient>
+            <radialGradient id="meye" cx="35%" cy="30%" r="60%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#f0fdf4"/></radialGradient>
+          </defs>
+          <!-- Body/torso -->
+          <ellipse cx="70" cy="125" rx="32" ry="22" fill="#1e3a5f" opacity="0.9"/>
+          <ellipse cx="70" cy="118" rx="26" ry="20" fill="#1d4ed8"/>
+          <!-- Neck scales -->
+          <ellipse cx="62" cy="102" rx="6" ry="4" fill="#b91c1c" opacity="0.7"/>
+          <ellipse cx="70" cy="100" rx="6" ry="4" fill="#b91c1c" opacity="0.7"/>
+          <ellipse cx="78" cy="102" rx="6" ry="4" fill="#b91c1c" opacity="0.7"/>
+          <!-- Head — big round Pixar style -->
+          <ellipse cx="70" cy="68" rx="38" ry="40" fill="url(#mg1)"/>
+          <!-- Head highlight -->
+          <ellipse cx="58" cy="52" rx="16" ry="10" fill="rgba(255,255,255,0.18)" transform="rotate(-20,58,52)"/>
+          <!-- Dragon horns — curved, colourful -->
+          <path d="M42 40 Q30 15 38 8 Q44 20 46 35Z" fill="url(#mg2)"/>
+          <path d="M98 40 Q110 15 102 8 Q96 20 94 35Z" fill="url(#mg2)"/>
+          <!-- Horn highlights -->
+          <path d="M42 38 Q33 20 39 12 Q42 22 44 34Z" fill="rgba(255,150,150,0.3)"/>
+          <path d="M98 38 Q107 20 101 12 Q98 22 96 34Z" fill="rgba(255,150,150,0.3)"/>
+          <!-- Spine ridge -->
+          <polygon points="55,31 52,20 58,29" fill="#dc2626"/>
+          <polygon points="67,28 64,16 70,27" fill="#ef4444"/>
+          <polygon points="79,31 76,20 82,29" fill="#dc2626"/>
+          <!-- Big Pixar eyes — left -->
+          <ellipse cx="52" cy="64" rx="14" ry="15" fill="url(#meye)"/>
+          <ellipse cx="52" cy="64" rx="11" ry="12" fill="url(#mg3)"/>
+          <ellipse cx="52" cy="64" rx="7" ry="8" fill="#052e16"/>
+          <ellipse cx="52" cy="64" rx="4" ry="5" fill="#000"/>
+          <ellipse cx="49" cy="60" rx="3" ry="3.5" fill="white"/>
+          <ellipse cx="56" cy="67" rx="1.5" ry="1.5" fill="rgba(255,255,255,0.6)"/>
+          <!-- Big Pixar eyes — right -->
+          <ellipse cx="88" cy="64" rx="14" ry="15" fill="url(#meye)"/>
+          <ellipse cx="88" cy="64" rx="11" ry="12" fill="url(#mg3)"/>
+          <ellipse cx="88" cy="64" rx="7" ry="8" fill="#052e16"/>
+          <ellipse cx="88" cy="64" rx="4" ry="5" fill="#000"/>
+          <ellipse cx="85" cy="60" rx="3" ry="3.5" fill="white"/>
+          <ellipse cx="92" cy="67" rx="1.5" ry="1.5" fill="rgba(255,255,255,0.6)"/>
+          <!-- Eyebrows — thick expressive -->
+          <path d="M40 52 Q52 46 60 50" stroke="#92400e" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M80 50 Q88 46 100 52" stroke="#92400e" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <!-- Scaly cheeks -->
+          <ellipse cx="32" cy="74" rx="10" ry="12" fill="#fb923c" opacity="0.55"/>
+          <ellipse cx="108" cy="74" rx="10" ry="12" fill="#fb923c" opacity="0.55"/>
+          <!-- Scale pattern on cheeks -->
+          <path d="M28 70 Q32 74 28 78" stroke="#c2410c" stroke-width="1" fill="none" opacity="0.5"/>
+          <path d="M104 70 Q108 74 104 78" stroke="#c2410c" stroke-width="1" fill="none" opacity="0.5"/>
+          <!-- Dragon snout -->
+          <ellipse cx="70" cy="85" rx="14" ry="10" fill="#fb923c" opacity="0.6"/>
+          <ellipse cx="66" cy="87" rx="4" ry="3" fill="#c2410c" opacity="0.8"/>
+          <ellipse cx="74" cy="87" rx="4" ry="3" fill="#c2410c" opacity="0.8"/>
+          <!-- Smoke puffs from nostrils -->
+          <circle cx="64" cy="82" r="3" fill="rgba(150,150,150,0.3)"/>
+          <circle cx="62" cy="78" r="2" fill="rgba(150,150,150,0.2)"/>
+          <circle cx="76" cy="82" r="3" fill="rgba(150,150,150,0.3)"/>
+          <circle cx="78" cy="78" r="2" fill="rgba(150,150,150,0.2)"/>
+          <!-- Wide grin with fangs -->
+          <path d="M52 96 Q70 110 88 96" stroke="#92400e" stroke-width="3" fill="rgba(180,50,30,0.8)" stroke-linecap="round"/>
+          <polygon points="60,97 57,107 64,98" fill="white"/>
+          <polygon points="80,97 76,98 83,107" fill="white"/>
+          <!-- Pointed ears -->
+          <polygon points="26,56 10,40 22,65" fill="#fbbf24"/>
+          <polygon points="26,56 14,44 22,60" fill="#fde68a" opacity="0.5"/>
+          <polygon points="114,56 130,40 118,65" fill="#fbbf24"/>
+          <polygon points="114,56 126,44 118,60" fill="#fde68a" opacity="0.5"/>
+          <!-- Tiny arms -->
+          <ellipse cx="38" cy="118" rx="10" ry="7" fill="#d97706" transform="rotate(-30,38,118)"/>
+          <ellipse cx="102" cy="118" rx="10" ry="7" fill="#d97706" transform="rotate(30,102,118)"/>
+        </svg>
+        <div class="pcard-nick">Monster</div>
+        <div class="pcard-real">Billy · Age 7</div>
+      </div>
+      <div class="pcard-body">
+        <div class="xp-lbl">Level 2 · 180 / 300 XP</div>
+        <div class="xp-track"><div class="xp-fill" style="width:60%"></div></div>
+        <div class="pcard-stats">7 quests completed</div>
+        <button class="pcard-btn">Enter, Monster!</button>
+      </div>
+    </div>
+
+    <!-- MONKEY / JACKSON — Pixar-style cheeky monkey boy -->
+    <div class="pcard monkey" onclick="startLogin('monkey')">
+      <div class="pcard-crest"></div>
+      <div class="pcard-top">
+        <!-- Pixar-style Monkey Boy SVG avatar -->
+        <svg width="140" height="150" viewBox="0 0 140 150" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;filter:drop-shadow(0 12px 32px rgba(0,0,0,0.8))">
+          <defs>
+            <radialGradient id="jg1" cx="40%" cy="30%" r="65%"><stop offset="0%" stop-color="#fef08a"/><stop offset="55%" stop-color="#fde68a"/><stop offset="100%" stop-color="#f59e0b"/></radialGradient>
+            <radialGradient id="jg2" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#b45309"/><stop offset="100%" stop-color="#78350f"/></radialGradient>
+            <radialGradient id="jg3" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#d97706"/><stop offset="100%" stop-color="#92400e"/></radialGradient>
+            <radialGradient id="jeye" cx="35%" cy="30%" r="60%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#fffbeb"/></radialGradient>
+            <radialGradient id="jear" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d97706"/><stop offset="100%" stop-color="#92400e"/></radialGradient>
+          </defs>
+          <!-- Curly tail up behind -->
+          <path d="M18 148 Q5 120 12 95 Q18 70 30 62 Q36 55 34 45 Q32 35 40 38" stroke="#92400e" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M18 148 Q5 120 12 95 Q18 70 30 62 Q36 55 34 45 Q32 35 40 38" stroke="#d97706" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <!-- Tail tip curl -->
+          <path d="M40 38 Q32 30 38 26 Q46 22 46 32" stroke="#92400e" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <!-- Body -->
+          <ellipse cx="70" cy="125" rx="32" ry="22" fill="#1e3a5f" opacity="0.9"/>
+          <ellipse cx="70" cy="118" rx="26" ry="20" fill="#1d4ed8"/>
+          <!-- BIG monkey ears — Pixar exaggerated -->
+          <ellipse cx="22" cy="65" rx="22" ry="22" fill="url(#jg2)"/>
+          <ellipse cx="22" cy="65" rx="15" ry="15" fill="url(#jear)" opacity="0.7"/>
+          <ellipse cx="22" cy="65" rx="9" ry="9" fill="#fcd34d" opacity="0.5"/>
+          <ellipse cx="118" cy="65" rx="22" ry="22" fill="url(#jg2)"/>
+          <ellipse cx="118" cy="65" rx="15" ry="15" fill="url(#jear)" opacity="0.7"/>
+          <ellipse cx="118" cy="65" rx="9" ry="9" fill="#fcd34d" opacity="0.5"/>
+          <!-- Head — big round Pixar -->
+          <ellipse cx="70" cy="68" rx="40" ry="42" fill="url(#jg1)"/>
+          <!-- Head highlight -->
+          <ellipse cx="56" cy="50" rx="18" ry="11" fill="rgba(255,255,255,0.2)" transform="rotate(-20,56,50)"/>
+          <!-- Muzzle area -->
+          <ellipse cx="70" cy="85" rx="20" ry="15" fill="#fef3c7"/>
+          <!-- Big Pixar eyes — left -->
+          <ellipse cx="52" cy="62" rx="15" ry="16" fill="url(#jeye)"/>
+          <ellipse cx="52" cy="62" rx="11" ry="12" fill="#92400e"/>
+          <ellipse cx="52" cy="62" rx="7" ry="8" fill="#451c07"/>
+          <ellipse cx="52" cy="62" rx="4" ry="4.5" fill="#000"/>
+          <ellipse cx="48.5" cy="57.5" rx="3.5" ry="4" fill="white"/>
+          <ellipse cx="57" cy="65" rx="1.5" ry="1.5" fill="rgba(255,255,255,0.6)"/>
+          <!-- Big Pixar eyes — right -->
+          <ellipse cx="88" cy="62" rx="15" ry="16" fill="url(#jeye)"/>
+          <ellipse cx="88" cy="62" rx="11" ry="12" fill="#92400e"/>
+          <ellipse cx="88" cy="62" rx="7" ry="8" fill="#451c07"/>
+          <ellipse cx="88" cy="62" rx="4" ry="4.5" fill="#000"/>
+          <ellipse cx="84.5" cy="57.5" rx="3.5" ry="4" fill="white"/>
+          <ellipse cx="93" cy="65" rx="1.5" ry="1.5" fill="rgba(255,255,255,0.6)"/>
+          <!-- Raised cheeky eyebrows -->
+          <path d="M38 50 Q52 42 62 47" stroke="#78350f" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M78 47 Q88 42 102 50" stroke="#78350f" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <!-- Cheek flush -->
+          <ellipse cx="32" cy="74" rx="9" ry="7" fill="#f97316" opacity="0.35"/>
+          <ellipse cx="108" cy="74" rx="9" ry="7" fill="#f97316" opacity="0.35"/>
+          <!-- Button nose -->
+          <ellipse cx="70" cy="80" rx="7" ry="5" fill="#d97706"/>
+          <circle cx="67" cy="80" r="2.5" fill="#92400e"/>
+          <circle cx="73" cy="80" r="2.5" fill="#92400e"/>
+          <!-- HUGE cheeky grin -->
+          <path d="M46 93 Q70 114 94 93" stroke="#78350f" stroke-width="3" fill="#fef3c7" stroke-linecap="round"/>
+          <rect x="56" y="93" width="8" height="7" rx="2" fill="white"/>
+          <rect x="67" y="93" width="8" height="7" rx="2" fill="white"/>
+          <!-- Fur tufts on top head -->
+          <path d="M46 32 Q48 18 55 30" stroke="#92400e" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M62 27 Q64 12 72 27" stroke="#92400e" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <path d="M78 28 Q84 14 88 30" stroke="#92400e" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <!-- Arms -->
+          <ellipse cx="38" cy="118" rx="11" ry="7" fill="#d97706" transform="rotate(-30,38,118)"/>
+          <ellipse cx="102" cy="118" rx="11" ry="7" fill="#d97706" transform="rotate(30,102,118)"/>
+        </svg>
+        <div class="pcard-nick">Monkey</div>
+        <div class="pcard-real">Jackson · Age 9</div>
+      </div>
+      <div class="pcard-body">
+        <div class="xp-lbl">Level 3 · 340 / 500 XP</div>
+        <div class="xp-track"><div class="xp-fill" style="width:68%"></div></div>
+        <div class="pcard-stats">12 quests completed</div>
+        <button class="pcard-btn">Enter, Monkey!</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="aunty-seal">&#10022; &nbsp; Crafted with magic by Aunty Prue &nbsp; &#10022;</div>
+</div>
+
+<!-- ═══ PIN ═══ -->
+<div class="screen" id="s-pin">
+  <div class="pin-bg"><div class="pin-orb1"></div><div class="pin-orb2"></div></div>
+  <div class="pin-box">
+    <div class="pin-title" id="pin-title">Monster</div>
+    <div class="pin-sub">Speak thy secret number to enter</div>
+    <div class="pin-dots"><div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div></div>
+    <div class="pin-err" id="pin-err"></div>
+    <div class="pin-pad">
+      <div class="pin-key" onclick="pinKey('1')">1</div><div class="pin-key" onclick="pinKey('2')">2</div><div class="pin-key" onclick="pinKey('3')">3</div>
+      <div class="pin-key" onclick="pinKey('4')">4</div><div class="pin-key" onclick="pinKey('5')">5</div><div class="pin-key" onclick="pinKey('6')">6</div>
+      <div class="pin-key" onclick="pinKey('7')">7</div><div class="pin-key" onclick="pinKey('8')">8</div><div class="pin-key" onclick="pinKey('9')">9</div>
+      <div class="pin-key sm" onclick="pinClear()">Clear</div><div class="pin-key" onclick="pinKey('0')">0</div><div class="pin-key sm" onclick="pinDel()">&#9003;</div>
+    </div>
+    <button class="pin-back" onclick="goTo('s-pick')">&larr; Back to portal</button>
+  </div>
+</div>
+
+<!-- ═══ MASTER PIN ═══ -->
+<div class="screen" id="s-master">
+  <div class="pin-bg"><div class="pin-orb1"></div><div class="pin-orb2"></div></div>
+  <div class="pin-box">
+    <div class="pin-title master">The Keeper</div>
+    <div class="pin-sub">Speak the flame's secret</div>
+    <div class="pin-dots"><div class="pin-dot" id="m0"></div><div class="pin-dot" id="m1"></div><div class="pin-dot" id="m2"></div><div class="pin-dot" id="m3"></div></div>
+    <div class="pin-err" id="master-err"></div>
+    <div class="pin-pad">
+      <div class="pin-key" onclick="masterKey('1')">1</div><div class="pin-key" onclick="masterKey('2')">2</div><div class="pin-key" onclick="masterKey('3')">3</div>
+      <div class="pin-key" onclick="masterKey('4')">4</div><div class="pin-key" onclick="masterKey('5')">5</div><div class="pin-key" onclick="masterKey('6')">6</div>
+      <div class="pin-key" onclick="masterKey('7')">7</div><div class="pin-key" onclick="masterKey('8')">8</div><div class="pin-key" onclick="masterKey('9')">9</div>
+      <div class="pin-key sm" onclick="masterClear()">Clear</div><div class="pin-key" onclick="masterKey('0')">0</div><div class="pin-key sm" onclick="masterDel()">&#9003;</div>
+    </div>
+    <button class="pin-back" onclick="goTo('s-pick')">&larr; Back to portal</button>
+  </div>
+</div>
+
+<!-- ═══ MONSTER'S DEN ═══ -->
+<div class="screen monster-world" id="s-monster">
+  <canvas class="world-canvas" id="m-canvas"></canvas>
+  <div class="world-content">
+    <div class="world-nav">
+      <div><div class="world-name">Monster's Den</div><div class="world-tagline">Billy's enchanted dragon realm</div></div>
+      <button class="world-leave-btn" onclick="goTo('s-pick')">&larr; Leave portal</button>
+    </div>
+    <div class="world-stats-bar">
+      <div class="wstat"><svg class="wstat-icon" viewBox="0 0 24 24" fill="none" stroke="#86efac" stroke-width="1.5" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><div><div class="wstat-val">1</div><div class="wstat-lbl">Stories</div></div></div>
+      <div class="wstat"><svg class="wstat-icon" viewBox="0 0 24 24" fill="none" stroke="#86efac" stroke-width="1.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><div><div class="wstat-val">7</div><div class="wstat-lbl">Quests</div></div></div>
+      <div class="wstat"><svg class="wstat-icon" viewBox="0 0 24 24" fill="none" stroke="#86efac" stroke-width="1.5" stroke-linecap="round"><path d="M12 22C6.5 22 2 17.5 2 12 2 6.5 6.5 2 12 2c0 2.5 1.5 4.5 3 6-1-1-3.5-1-4.5 1.5-1 2.5.5 5 3.5 5 1.5 0 3-1 3.5-2.5C19.5 10 18 7 16 5c3 2 6 5.5 6 9-2 2.5-5 5-10 8z"/></svg><div><div class="wstat-val">3</div><div class="wstat-lbl">Streak</div></div></div>
+    </div>
+    <div class="treasure-room">
+      <div class="room-hdr"><svg class="room-hdr-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(134,239,172,0.5)" stroke-width="1.5" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><div class="room-hdr-title">The Treasure Room</div><div class="room-hdr-line"></div></div>
+      <div class="room-lore">Ancient tales forged in dragonfire &mdash; tap a tome to begin...</div>
+      <div class="stories-grid">
+        <div class="story-book" onclick="openReader('billy')">
+          <div class="book-spine"></div>
+          <div class="book-cover">
+            <div class="book-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="book-title">Billy, Jackson &amp; The World's Weirdest Aunt and Uncle</div>
+            <div class="book-author">By Aunty Prue</div>
+            <span class="book-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Your story</span>
+          </div>
+        </div>
+        <div class="story-scroll story-locked">
+          <div class="scroll-outer"><div class="scroll-rod"></div><div class="scroll-body"><div class="scroll-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="scroll-title">A new tale awaits...</div><div class="scroll-sub">Coming soon</div></div><div class="scroll-rod"></div></div>
+          <div class="locked-veil"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MONKEY'S JUNGLE ═══ -->
+<div class="screen monkey-world" id="s-monkey">
+  <canvas class="world-canvas" id="mk-canvas"></canvas>
+  <div class="world-content">
+    <div class="world-nav">
+      <div><div class="world-name">Monkey's Jungle</div><div class="world-tagline">Jackson's enchanted golden realm</div></div>
+      <button class="world-leave-btn" onclick="goTo('s-pick')">&larr; Leave portal</button>
+    </div>
+    <div class="world-stats-bar">
+      <div class="wstat"><svg class="wstat-icon" viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><div><div class="wstat-val">1</div><div class="wstat-lbl">Stories</div></div></div>
+      <div class="wstat"><svg class="wstat-icon" viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><div><div class="wstat-val">12</div><div class="wstat-lbl">Quests</div></div></div>
+      <div class="wstat"><svg class="wstat-icon" viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"><path d="M12 22C6.5 22 2 17.5 2 12 2 6.5 6.5 2 12 2c0 2.5 1.5 4.5 3 6-1-1-3.5-1-4.5 1.5-1 2.5.5 5 3.5 5 1.5 0 3-1 3.5-2.5C19.5 10 18 7 16 5c3 2 6 5.5 6 9-2 2.5-5 5-10 8z"/></svg><div><div class="wstat-val">5</div><div class="wstat-lbl">Streak</div></div></div>
+    </div>
+    <div class="treasure-room">
+      <div class="room-hdr"><svg class="room-hdr-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,215,0,0.6)" stroke-width="1.5" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><div class="room-hdr-title">The Treasure Room</div><div class="room-hdr-line"></div></div>
+      <div class="room-lore">Golden tales woven by Aunty Prue's enchantment &mdash; tap a tome to begin...</div>
+      <div class="stories-grid">
+        <div class="story-book" onclick="openReader('jackson')">
+          <div class="book-spine"></div>
+          <div class="book-cover">
+            <div class="book-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="book-title">Jackson and the Terrible Spectacular Lie</div>
+            <div class="book-author">By Aunty Prue</div>
+            <span class="book-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Your story</span>
+          </div>
+        </div>
+        <div class="story-scroll story-locked">
+          <div class="scroll-outer"><div class="scroll-rod"></div><div class="scroll-body"><div class="scroll-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="scroll-title">A new tale awaits...</div><div class="scroll-sub">Coming soon</div></div><div class="scroll-rod"></div></div>
+          <div class="locked-veil"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ READER ═══ -->
+<div class="screen" id="s-reader">
+  <div class="reader-nav">
+    <button class="reader-back" id="reader-back-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back to my world</button>
+    <div class="reader-title-bar" id="reader-title-bar">Story</div>
+  </div>
+  <div class="reader-body">
+    <div class="reader-placeholder"><svg class="reader-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.2" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Story content coming &mdash; paste your stories in next to bring them to life!</div>
+  </div>
+</div>
+
+<!-- ═══ KEEPER'S CHAMBER ═══ -->
+<div class="screen" id="s-admin">
+  <div class="pin-bg"><div class="pin-orb1"></div><div class="pin-orb2"></div></div>
+  <div class="admin-box">
+    <div class="admin-title">Keeper's Chamber</div>
+    <div class="admin-sub">Only Aunty Prue may enter here</div>
+    <div class="admin-rule"></div>
+    <div class="admin-sec">Change enchantments</div>
+    <div class="admin-row"><div class="admin-lbl">Monster's PIN (Billy)</div><div class="admin-inp-row"><input class="admin-inp" id="a-billy" type="password" maxlength="4" placeholder="&#9679;&#9679;&#9679;&#9679;" inputmode="numeric"/><button class="admin-save-btn" onclick="savePin('billy')">Save</button></div><div class="admin-ok" id="c-billy"></div></div>
+    <div class="admin-row"><div class="admin-lbl">Monkey's PIN (Jackson)</div><div class="admin-inp-row"><input class="admin-inp" id="a-jackson" type="password" maxlength="4" placeholder="&#9679;&#9679;&#9679;&#9679;" inputmode="numeric"/><button class="admin-save-btn" onclick="savePin('jackson')">Save</button></div><div class="admin-ok" id="c-jackson"></div></div>
+    <div class="admin-rule"></div>
+    <div class="admin-sec">Story settings</div>
+    <div class="admin-tog-row"><div><div class="admin-tog-lbl">Monster &mdash; Weirdest Aunt &amp; Uncle</div><div class="admin-tog-sub">Billy's treasure room</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="admin-tog-row"><div><div class="admin-tog-lbl">Monkey &mdash; The Spectacular Lie</div><div class="admin-tog-sub">Jackson's treasure room</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="admin-rule"></div>
+    <button class="admin-close-btn" onclick="goTo('s-pick')">&larr; Seal the chamber</button>
+  </div>
+</div>
+
+<script>
+// ── PINS ──
+const PINS={monster:'1111',monkey:'9999',master:'1012'};
+let currentUser=null,pinEntry='',masterEntry='',currentWorld=null,mAnim=null,mkAnim=null;
+
+(function(){const c=document.getElementById('pick-sparks');for(let i=0;i<22;i++){const s=document.createElement('div');s.className='pick-spark';s.style.cssText=`left:${Math.random()*100}%;top:${20+Math.random()*70}%;--d:${3+Math.random()*6}s;--dl:${Math.random()*8}s`;c.appendChild(s);}})();
+
+function goTo(id){
+  if(mAnim&&id!=='s-monster'){cancelAnimationFrame(mAnim);mAnim=null;}
+  if(mkAnim&&id!=='s-monkey'){cancelAnimationFrame(mkAnim);mkAnim=null;}
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='s-monster')requestAnimationFrame(()=>drawMonsterDen());
+  if(id==='s-monkey')requestAnimationFrame(()=>drawMonkeyJungle());
+}
+
+function flameTap(){masterEntry='';updateMasterDots();document.getElementById('master-err').textContent='';goTo('s-master');}
+function startLogin(user){currentUser=user;pinEntry='';document.getElementById('pin-title').textContent=user==='monster'?'Monster':'Monkey';document.getElementById('pin-title').className='pin-title '+user;updateDots();document.getElementById('pin-err').textContent='';goTo('s-pin');}
+function updateDots(){for(let i=0;i<4;i++){const d=document.getElementById('d'+i);d.className='pin-dot'+(i<pinEntry.length?' filled '+currentUser:'');}}
+function updateMasterDots(){for(let i=0;i<4;i++){const d=document.getElementById('m'+i);d.className='pin-dot'+(i<masterEntry.length?' filled master':'');}}
+function pinKey(n){if(pinEntry.length>=4)return;pinEntry+=n;updateDots();document.getElementById('pin-err').textContent='';if(pinEntry.length===4)setTimeout(checkPin,220);}
+function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();}
+function pinClear(){pinEntry='';updateDots();}
+function checkPin(){if(pinEntry===PINS[currentUser]){launchPortal(currentUser);}else{document.getElementById('pin-err').textContent='The enchantment failed \u2014 try again!';const b=document.querySelector('#s-pin .pin-box');b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),400);pinEntry='';updateDots();}}
+function masterKey(n){if(masterEntry.length>=4)return;masterEntry+=n;updateMasterDots();document.getElementById('master-err').textContent='';if(masterEntry.length===4)setTimeout(checkMaster,220);}
+function masterDel(){masterEntry=masterEntry.slice(0,-1);updateMasterDots();}
+function masterClear(){masterEntry='';updateMasterDots();}
+function checkMaster(){if(masterEntry===PINS.master){goTo('s-admin');}else{document.getElementById('master-err').textContent='The flame does not recognise you.';const b=document.querySelector('#s-master .pin-box');b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),400);masterEntry='';updateMasterDots();}}
+function savePin(who){const inp=document.getElementById('a-'+who),val=inp.value.trim(),ok=document.getElementById('c-'+who);if(!/^\d{4}$/.test(val)){ok.style.color='#fca5a5';ok.textContent='Must be exactly 4 digits.';return;}PINS[who==='billy'?'monster':'monkey']=val;inp.value='';ok.style.color='#86efac';ok.textContent='Enchantment sealed! \u2736';setTimeout(()=>ok.textContent='',3000);}
+function openReader(who){const titles={billy:"Billy, Jackson & The World's Weirdest Aunt and Uncle",jackson:"Jackson and the Terrible Spectacular Lie"};document.getElementById('reader-title-bar').textContent=titles[who];document.getElementById('reader-back-btn').onclick=()=>goTo('s-'+currentWorld);goTo('s-reader');}
+
+function launchPortal(user){
+  const cfg={monster:{color:'#86efac',dark:'#0a1f0d',bg:'#07050a',label:'Monster'},monkey:{color:'#ffd700',dark:'#1f1400',bg:'#060800',label:'Monkey'}};
+  const c=cfg[user];
+  const overlay=document.getElementById('portal-overlay'),core=document.getElementById('portal-core'),burst=document.getElementById('portal-burst'),rings=document.getElementById('portal-rings');
+  overlay.style.background=c.bg;core.textContent='';
+  burst.style.background=`radial-gradient(circle,${c.color},${c.dark})`;burst.style.animation='none';burst.style.opacity='1';rings.innerHTML='';
+  [280,200,130,70].forEach((sz,i)=>{const r=document.createElement('div');r.className='portal-ring';r.style.cssText=`width:${sz}px;height:${sz}px;border-color:${c.color};opacity:${0.7-i*0.12};animation-duration:${2.8-i*0.5}s;box-shadow:0 0 18px ${c.color}40`;rings.appendChild(r);});
+  overlay.classList.add('active');
+  setTimeout(()=>{burst.style.animation='portalExpand 1.1s ease-in forwards';},450);
+  setTimeout(()=>{overlay.classList.remove('active');burst.style.animation='none';overlay.style.background='#080e24';currentWorld=user;goTo('s-'+user);},1700);
+}
+
+// ══════════════════════════════════
+// MONSTER'S DEN — Dragon Cave Scene
+// ══════════════════════════════════
+function drawMonsterDen(){
+  const canvas=document.getElementById('m-canvas');
+  const world=document.getElementById('s-monster');
+  canvas.width=world.offsetWidth; canvas.height=world.offsetHeight;
+  const W=canvas.width,H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  if(mAnim)cancelAnimationFrame(mAnim);
+
+  // Fireflies — golden spell orbs + green woodland flies
+  const flies=[];
+  for(let i=0;i<8;i++) flies.push({x:W*0.1+Math.random()*W*0.8,y:H*0.2+Math.random()*H*0.5,r:3+Math.random()*2,vx:(Math.random()-0.5)*0.25,vy:(Math.random()-0.5)*0.15,phase:Math.random()*Math.PI*2,speed:0.007+Math.random()*0.008,type:'orb',trail:[]});
+  for(let i=0;i<12;i++) flies.push({x:Math.random()*W,y:H*0.25+Math.random()*H*0.55,r:1.5+Math.random()*1.2,vx:(Math.random()-0.5)*0.55,vy:(Math.random()-0.5)*0.35,phase:Math.random()*Math.PI*2,speed:0.022+Math.random()*0.02,type:'fly',trail:[]});
+
+  const spells=[];
+  for(let i=0;i<25;i++) spells.push({x:Math.random()*W,y:H*0.15+Math.random()*H*0.75,r:1+Math.random()*2,vx:(Math.random()-0.5)*0.12,vy:-0.18-Math.random()*0.35,life:Math.random(),col:Math.random()<0.55?[245,200,66]:[134,239,172]});
+
+  // Torch positions
+  const torches=[{x:W*0.22,y:H*0.38},{x:W*0.78,y:H*0.38},{x:W*0.08,y:H*0.55},{x:W*0.92,y:H*0.55}];
+
+  let t=0;
+
+  function drawSky(){
+    const sky=ctx.createLinearGradient(0,0,0,H);
+    sky.addColorStop(0,'#07050a');
+    sky.addColorStop(0.25,'#0e0a14');
+    sky.addColorStop(0.55,'#130d0a');
+    sky.addColorStop(0.8,'#1a1208');
+    sky.addColorStop(1,'#0d0805');
+    ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+
+    // Lava glow from bottom cave
+    const lg=ctx.createRadialGradient(W/2,H,0,W/2,H,W*0.7);
+    lg.addColorStop(0,'rgba(220,60,0,0.35)');
+    lg.addColorStop(0.4,'rgba(180,40,0,0.15)');
+    lg.addColorStop(1,'rgba(180,40,0,0)');
+    ctx.fillStyle=lg;ctx.fillRect(0,0,W,H);
+
+    // Torch ambient glows
+    torches.forEach(tp=>{
+      const tg=ctx.createRadialGradient(tp.x,tp.y,0,tp.x,tp.y,W*0.22);
+      const flicker=0.12+0.05*Math.sin(t*0.08+tp.x);
+      tg.addColorStop(0,`rgba(255,140,0,${flicker})`);
+      tg.addColorStop(1,'rgba(255,80,0,0)');
+      ctx.fillStyle=tg;ctx.fillRect(0,0,W,H);
+    });
+  }
+
+  function drawCaveArch(){
+    // Massive dragon cave mouth — dark stone arch
+    ctx.save();
+    // Outer cave rock silhouette
+    ctx.fillStyle='#060408';
+    ctx.beginPath();
+    ctx.moveTo(0,0);ctx.lineTo(0,H*0.5);
+    ctx.bezierCurveTo(0,H*0.3,W*0.15,H*0.18,W*0.28,H*0.2);
+    ctx.bezierCurveTo(W*0.35,H*0.21,W*0.4,H*0.15,W/2,H*0.14);
+    ctx.bezierCurveTo(W*0.6,H*0.15,W*0.65,H*0.21,W*0.72,H*0.2);
+    ctx.bezierCurveTo(W*0.85,H*0.18,W,H*0.3,W,H*0.5);
+    ctx.lineTo(W,0);ctx.closePath();ctx.fill();
+
+    // Stone texture on arch
+    ctx.strokeStyle='rgba(80,60,40,0.35)';ctx.lineWidth=1.5;
+    const archPts=[[W*0.28,H*0.2],[W*0.4,H*0.15],[W/2,H*0.14],[W*0.6,H*0.15],[W*0.72,H*0.2]];
+    archPts.forEach((pt,i)=>{
+      if(i===0)return;
+      const prev=archPts[i-1];
+      // Stone blocks along arch
+      for(let s=0;s<3;s++){
+        const frac=s/3;
+        const bx=prev[0]+(pt[0]-prev[0])*frac;
+        const by=prev[1]+(pt[1]-prev[1])*frac;
+        ctx.strokeRect(bx-12,by-8,24,16);
+      }
+    });
+
+    // Glowing rune inscription on arch
+    ctx.font='bold 14px serif';ctx.textAlign='center';
+    const runeGlow=ctx.createLinearGradient(W/2-160,0,W/2+160,0);
+    runeGlow.addColorStop(0,'rgba(134,239,172,0)');
+    runeGlow.addColorStop(0.5,'rgba(134,239,172,0.55)');
+    runeGlow.addColorStop(1,'rgba(134,239,172,0)');
+    ctx.fillStyle=runeGlow;
+    ctx.fillText('✦  ᚠ  ᚢ  ᚦ  ᛞ  ᚱ  ᚲ  ✦', W/2, H*0.1);
+
+    // Rune glow pulse
+    const rp=0.3+0.2*Math.sin(t*0.03);
+    ctx.font='bold 11px serif';ctx.fillStyle=`rgba(134,239,172,${rp})`;
+    ctx.fillText('✦  ᚠ  ᚢ  ᚦ  ᛞ  ᚱ  ᚲ  ✦', W/2, H*0.1);
+
+    // Keystone with gem
+    const ksX=W/2,ksY=H*0.145;
+    ctx.fillStyle='#2a1a0a';ctx.beginPath();ctx.moveTo(ksX-18,ksY-12);ctx.lineTo(ksX+18,ksY-12);ctx.lineTo(ksX+12,ksY+12);ctx.lineTo(ksX-12,ksY+12);ctx.closePath();ctx.fill();
+    const glow=0.7+0.3*Math.sin(t*0.05);
+    const kg=ctx.createRadialGradient(ksX,ksY,0,ksX,ksY,16);
+    kg.addColorStop(0,`rgba(134,239,172,${glow})`);kg.addColorStop(1,'rgba(134,239,172,0)');
+    ctx.fillStyle=kg;ctx.beginPath();ctx.arc(ksX,ksY,16,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#86efac';ctx.beginPath();
+    ctx.moveTo(ksX,ksY-8);ctx.lineTo(ksX+6,ksY);ctx.lineTo(ksX,ksY+8);ctx.lineTo(ksX-6,ksY);
+    ctx.closePath();ctx.fill();
+    ctx.restore();
+  }
+
+  function drawStonePillars(){
+    const pillars=[
+      {x:W*0.12,h:H*0.62,w:40},
+      {x:W*0.88,h:H*0.62,w:40},
+      {x:W*0.28,h:H*0.45,w:30},
+      {x:W*0.72,h:H*0.45,w:30},
+    ];
+    pillars.forEach(p=>{
+      // Pillar body
+      const pg=ctx.createLinearGradient(p.x-p.w/2,0,p.x+p.w/2,0);
+      pg.addColorStop(0,'#1a1008');pg.addColorStop(0.3,'#2d2010');pg.addColorStop(0.7,'#221808');pg.addColorStop(1,'#120c05');
+      ctx.fillStyle=pg;
+      ctx.fillRect(p.x-p.w/2,H-p.h,p.w,p.h);
+      // Stone blocks
+      ctx.strokeStyle='rgba(60,40,20,0.5)';ctx.lineWidth=1;
+      for(let by=H-p.h;by<H;by+=28){ctx.strokeRect(p.x-p.w/2,by,p.w,28);}
+      // Cap stone
+      ctx.fillStyle='#3d2a10';
+      ctx.fillRect(p.x-p.w/2-5,H-p.h,p.w+10,18);
+      ctx.fillStyle='#2a1a08';
+      ctx.fillRect(p.x-p.w/2-8,H-p.h-8,p.w+16,12);
+      // Rune on pillar
+      const rp2=0.2+0.15*Math.sin(t*0.02+p.x);
+      ctx.font='12px serif';ctx.textAlign='center';ctx.fillStyle=`rgba(134,239,172,${rp2})`;
+      ctx.fillText(['ᚱ','ᚦ','ᚷ','ᚠ'][Math.floor(p.x/W*4)%4],p.x,H-p.h+p.h*0.35);
+    });
+  }
+
+  function drawTorch(tx,ty,frameT){
+    // Bracket
+    ctx.strokeStyle='#5a3a10';ctx.lineWidth=3;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(tx,ty+20);ctx.lineTo(tx,ty+50);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(tx-8,ty+20);ctx.lineTo(tx+8,ty+20);ctx.stroke();
+    // Bowl
+    ctx.fillStyle='#78350f';
+    ctx.beginPath();ctx.moveTo(tx-10,ty+20);ctx.lineTo(tx+10,ty+20);ctx.lineTo(tx+7,ty+8);ctx.lineTo(tx-7,ty+8);ctx.closePath();ctx.fill();
+    // Fire layers
+    const fi=0.7+0.3*Math.sin(frameT*0.12+tx);
+    const fireColors=['rgba(255,255,100,0.9)','rgba(255,160,0,0.85)','rgba(255,80,0,0.8)','rgba(200,20,0,0.7)'];
+    [[6,14],[8,20],[10,26],[8,30]].forEach(([fw,fh],i)=>{
+      const fx=tx+(Math.random()-0.5)*2*fi;
+      const fry=ty+8-i*4;
+      ctx.fillStyle=fireColors[i];
+      ctx.beginPath();
+      ctx.ellipse(fx,fry,fw*fi,fh*fi*0.7,0,0,Math.PI*2);
+      ctx.fill();
+    });
+    // Glow
+    const fg=ctx.createRadialGradient(tx,ty,0,tx,ty,55);
+    const fa=0.2+0.12*Math.sin(frameT*0.09+tx);
+    fg.addColorStop(0,`rgba(255,140,0,${fa})`);fg.addColorStop(1,'rgba(255,80,0,0)');
+    ctx.fillStyle=fg;ctx.beginPath();ctx.arc(tx,ty,55,0,Math.PI*2);ctx.fill();
+  }
+
+  function drawDragonSilhouette(){
+    // Background dragon silhouette visible in cave depths
+    ctx.save();ctx.globalAlpha=0.12+0.04*Math.sin(t*0.015);
+    ctx.fillStyle='#300a00';
+    // Body
+    ctx.beginPath();ctx.ellipse(W*0.5,H*0.55,W*0.18,H*0.12,0.2,0,Math.PI*2);ctx.fill();
+    // Wing left
+    ctx.beginPath();ctx.moveTo(W*0.35,H*0.5);ctx.bezierCurveTo(W*0.15,H*0.35,W*0.08,H*0.45,W*0.22,H*0.55);ctx.closePath();ctx.fill();
+    // Wing right
+    ctx.beginPath();ctx.moveTo(W*0.65,H*0.5);ctx.bezierCurveTo(W*0.85,H*0.35,W*0.92,H*0.45,W*0.78,H*0.55);ctx.closePath();ctx.fill();
+    // Head & neck
+    ctx.beginPath();ctx.ellipse(W*0.5,H*0.42,W*0.06,H*0.06,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.moveTo(W*0.47,H*0.47);ctx.lineTo(W*0.53,H*0.47);ctx.lineTo(W*0.51,H*0.42);ctx.lineTo(W*0.49,H*0.42);ctx.closePath();ctx.fill();
+    // Eyes glow
+    ctx.globalAlpha=0.5+0.3*Math.sin(t*0.04);
+    ctx.fillStyle='#ff4400';
+    ctx.beginPath();ctx.arc(W*0.485,H*0.415,4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(W*0.515,H*0.415,4,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  function drawLavaGround(){
+    // Cave floor with lava glow
+    const ground=ctx.createLinearGradient(0,H*0.85,0,H);
+    ground.addColorStop(0,'rgba(15,8,3,0)');
+    ground.addColorStop(0.3,'rgba(20,10,3,0.85)');
+    ground.addColorStop(1,'rgba(5,2,0,1)');
+    ctx.fillStyle=ground;ctx.fillRect(0,H*0.85,W,H*0.15);
+
+    // Lava cracks glowing
+    const cracks=[[W*0.2,H*0.9,W*0.4,H*0.95],[W*0.5,H*0.88,W*0.7,H*0.93],[W*0.1,H*0.93,W*0.3,H*0.97],[W*0.65,H*0.91,W*0.85,H*0.96]];
+    cracks.forEach(([x1,y1,x2,y2])=>{
+      const lf=0.6+0.4*Math.sin(t*0.05+x1);
+      const lg2=ctx.createLinearGradient(x1,y1,x2,y2);
+      lg2.addColorStop(0,'rgba(255,60,0,0)');
+      lg2.addColorStop(0.5,`rgba(255,100,0,${lf*0.7})`);
+      lg2.addColorStop(1,'rgba(255,60,0,0)');
+      ctx.strokeStyle=lg2;ctx.lineWidth=2+lf;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.bezierCurveTo(x1+(x2-x1)*0.3,y1+5,x1+(x2-x1)*0.7,y2-5,x2,y2);ctx.stroke();
+    });
+  }
+
+  function drawMist(){
+    const ml=[{y:H*0.72,h:H*0.1,alpha:0.12,speed:0.00012,col:'20,12,5'},{y:H*0.8,h:H*0.1,alpha:0.18,speed:0.00018,col:'15,8,3'},{y:H*0.88,h:H*0.12,alpha:0.25,speed:0.00008,col:'10,5,1'}];
+    ml.forEach(({y,h,alpha,speed,col})=>{
+      const off=Math.sin(t*speed*1000)*20;
+      const mg=ctx.createLinearGradient(0,y,0,y+h);
+      mg.addColorStop(0,`rgba(${col},0)`);mg.addColorStop(0.5,`rgba(${col},${alpha})`);mg.addColorStop(1,`rgba(${col},0)`);
+      ctx.fillStyle=mg;
+      ctx.beginPath();ctx.moveTo(-off,y);
+      for(let x=0;x<=W+off;x+=60){ctx.lineTo(x,y+Math.sin((x+t*0.025)*0.06)*10);}
+      ctx.lineTo(W+off,y+h);ctx.lineTo(-off,y+h);ctx.closePath();ctx.fill();
+    });
+  }
+
+  let frameT=0;
+  function render(){
+    frameT++;t=frameT;
+    ctx.clearRect(0,0,W,H);
+    drawSky();
+    drawCaveArch();
+    drawDragonSilhouette();
+    drawStonePillars();
+    torches.forEach(tp=>drawTorch(tp.x,tp.y,frameT));
+    drawLavaGround();
+    drawMist();
+
+    // Spell particles
+    spells.forEach(p=>{
+      p.life-=0.004;p.x+=p.vx;p.y+=p.vy;
+      if(p.life<=0){p.life=1;p.x=Math.random()*W;p.y=H*0.3+Math.random()*H*0.5;}
+      const a=Math.sin(p.life*Math.PI)*0.75;
+      const [r,g,b]=p.col;
+      ctx.shadowBlur=6;ctx.shadowColor=`rgba(${r},${g},${b},0.5)`;
+      ctx.fillStyle=`rgba(${r},${g},${b},${a})`;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+    });
+
+    // Fireflies
+    flies.forEach(f=>{
+      f.phase+=f.speed;f.x+=f.vx+Math.sin(f.phase*1.2)*0.3;f.y+=f.vy+Math.cos(f.phase)*0.2;
+      if(f.x<0)f.x=W;if(f.x>W)f.x=0;if(f.y<H*0.1)f.y=H*0.85;if(f.y>H*0.9)f.y=H*0.15;
+      f.trail.push({x:f.x,y:f.y});if(f.trail.length>9)f.trail.shift();
+      const glow=0.5+0.5*Math.sin(f.phase*2.8);
+      if(f.type==='orb'){
+        const og=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r*6);
+        og.addColorStop(0,`rgba(245,200,66,${glow*0.9})`);og.addColorStop(0.4,`rgba(245,180,0,${glow*0.4})`);og.addColorStop(1,'rgba(245,100,0,0)');
+        ctx.fillStyle=og;ctx.beginPath();ctx.arc(f.x,f.y,f.r*6,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=`rgba(255,250,200,${glow})`;ctx.beginPath();ctx.arc(f.x,f.y,f.r*0.7,0,Math.PI*2);ctx.fill();
+      } else {
+        f.trail.forEach((pt,i)=>{ctx.fillStyle=`rgba(134,239,172,${(i/f.trail.length)*0.28*glow})`;ctx.beginPath();ctx.arc(pt.x,pt.y,f.r*0.5,0,Math.PI*2);ctx.fill();});
+        const fg=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r*3.5);
+        fg.addColorStop(0,`rgba(134,239,172,${glow*0.85})`);fg.addColorStop(1,'rgba(134,239,172,0)');
+        ctx.fillStyle=fg;ctx.beginPath();ctx.arc(f.x,f.y,f.r*3.5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=`rgba(220,255,210,${glow})`;ctx.beginPath();ctx.arc(f.x,f.y,f.r*0.8,0,Math.PI*2);ctx.fill();
+      }
+    });
+
+    mAnim=requestAnimationFrame(render);
+  }
+  render();
+}
+
+// ══════════════════════════════════
+// MONKEY'S JUNGLE — Birds of Paradise
+// ══════════════════════════════════
+function drawMonkeyJungle(){
+  const canvas=document.getElementById('mk-canvas');
+  const world=document.getElementById('s-monkey');
+  canvas.width=world.offsetWidth;canvas.height=world.offsetHeight;
+  const W=canvas.width,H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  if(mkAnim)cancelAnimationFrame(mkAnim);
+
+  // Fireflies — golden lanterns + small zipping flies (distinct)
+  const fires=[];
+  for(let i=0;i<7;i++) fires.push({x:W*0.1+Math.random()*W*0.8,y:H*0.15+Math.random()*H*0.5,r:3.5+Math.random()*2,vx:(Math.random()-0.5)*0.22,vy:(Math.random()-0.5)*0.12,phase:Math.random()*Math.PI*2,speed:0.007+Math.random()*0.008,type:'lantern',trail:[]});
+  for(let i=0;i<14;i++) fires.push({x:Math.random()*W,y:H*0.08+Math.random()*H*0.75,r:1.2+Math.random()*1,vx:(Math.random()-0.5)*0.65,vy:(Math.random()-0.5)*0.45,phase:Math.random()*Math.PI*2,speed:0.026+Math.random()*0.025,type:'fly',trail:[]});
+
+  // Gold dust
+  const dust=[];
+  for(let i=0;i<30;i++) dust.push({x:Math.random()*W,y:H*0.1+Math.random()*H*0.8,r:0.8+Math.random()*1.5,vx:(Math.random()-0.5)*0.1,vy:-0.12-Math.random()*0.28,life:Math.random()});
+
+  // Birds of paradise — perched positions that animate
+  const birds=[
+    {x:W*0.15,y:H*0.28,dir:1,phase:0,col:['#dc2626','#ea580c','#fbbf24']},
+    {x:W*0.78,y:H*0.22,dir:-1,phase:1.5,col:['#7c3aed','#a855f7','#ffd700']},
+    {x:W*0.55,y:H*0.32,dir:1,phase:3,col:['#0891b2','#06b6d4','#ffd700']},
+    {x:W*0.88,y:H*0.45,dir:-1,phase:4.5,col:['#15803d','#22c55e','#fbbf24']},
+  ];
+
+  // Vines
+  const vines=[{x:W*0.04,len:H*0.45,sw:7},{x:W*0.2,len:H*0.3,sw:5},{x:W*0.42,len:H*0.38,sw:6},{x:W*0.65,len:H*0.33,sw:5},{x:W*0.82,len:H*0.4,sw:6},{x:W*0.96,len:H*0.28,sw:4}];
+
+  function drawBg(){
+    const bg=ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#060400');bg.addColorStop(0.15,'#100800');bg.addColorStop(0.45,'#0c1200');bg.addColorStop(0.75,'#081000');bg.addColorStop(1,'#040800');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    // Warm gold ambient
+    const ag=ctx.createRadialGradient(W*0.85,H*0.08,0,W*0.85,H*0.08,W*0.65);
+    ag.addColorStop(0,'rgba(255,200,0,0.18)');ag.addColorStop(0.5,'rgba(200,130,0,0.08)');ag.addColorStop(1,'rgba(200,130,0,0)');
+    ctx.fillStyle=ag;ctx.fillRect(0,0,W,H);
+    // Deep jungle green left
+    const gg=ctx.createRadialGradient(0,H*0.5,0,0,H*0.5,W*0.5);
+    gg.addColorStop(0,'rgba(0,80,20,0.15)');gg.addColorStop(1,'rgba(0,80,20,0)');
+    ctx.fillStyle=gg;ctx.fillRect(0,0,W,H);
+  }
+
+  function drawSun(t){
+    const sx=W*0.88,sy=H*0.06,pulse=0.05+0.04*Math.sin(t*0.001);
+    const sg=ctx.createRadialGradient(sx,sy,0,sx,sy,W*0.22);
+    sg.addColorStop(0,`rgba(255,230,0,${0.65+pulse})`);sg.addColorStop(0.2,`rgba(255,190,0,${0.35+pulse})`);sg.addColorStop(0.5,'rgba(200,100,0,0.12)');sg.addColorStop(1,'rgba(200,100,0,0)');
+    ctx.fillStyle=sg;ctx.fillRect(0,0,W,H*0.4);
+    ctx.fillStyle=`rgba(255,250,180,${0.92+pulse})`;ctx.beginPath();ctx.arc(sx,sy,20,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,240,100,0.5)';ctx.beginPath();ctx.arc(sx,sy,30,0,Math.PI*2);ctx.fill();
+  }
+
+  function drawCanopy(t){
+    // Rich layered canopy — NOT dull green, uses deep forest tones with gold light
+    [[0.32,'12,28,5',0.92],[0.26,'16,36,6',0.82],[0.2,'20,45,8',0.65],[0.14,'24,55,10',0.5]].forEach(([h,col,op])=>{
+      const g=ctx.createLinearGradient(0,0,0,H*h);
+      g.addColorStop(0,`rgba(${col},${op})`);g.addColorStop(0.7,`rgba(${col},${op*0.6})`);g.addColorStop(1,`rgba(${col},0)`);
+      ctx.fillStyle=g;
+      ctx.beginPath();ctx.moveTo(0,0);
+      for(let x=0;x<=W;x+=35){ctx.lineTo(x,H*h*(0.45+0.55*Math.sin(x*0.018+op+t*0.0003)));}
+      ctx.lineTo(W,0);ctx.closePath();ctx.fill();
+    });
+    // Gold light shafts through canopy
+    [[W*0.25,W*0.22],[W*0.55,W*0.18],[W*0.8,W*0.25]].forEach(([sx,sw])=>{
+      const shaft=ctx.createLinearGradient(sx,0,sx,H*0.5);
+      const sa=0.04+0.02*Math.sin(t*0.0015+sx);
+      shaft.addColorStop(0,`rgba(255,210,0,${sa})`);shaft.addColorStop(1,'rgba(255,210,0,0)');
+      ctx.fillStyle=shaft;
+      ctx.beginPath();ctx.moveTo(sx-sw*0.5,0);ctx.lineTo(sx+sw*0.5,0);ctx.lineTo(sx+sw*0.3,H*0.5);ctx.lineTo(sx-sw*0.3,H*0.5);ctx.closePath();ctx.fill();
+    });
+  }
+
+  function drawVine(x,len,sw,t){
+    const sway=Math.sin(t*0.0007+x)*14;
+    const vg=ctx.createLinearGradient(x,0,x,len);
+    vg.addColorStop(0,'rgba(22,101,52,0.88)');vg.addColorStop(0.5,'rgba(21,128,61,0.7)');vg.addColorStop(1,'rgba(14,80,40,0.35)');
+    ctx.strokeStyle=vg;ctx.lineWidth=sw;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(x,0);ctx.bezierCurveTo(x+sway*0.4,len*0.28,x-sway*0.6,len*0.58,x+sway,len);ctx.stroke();
+    // Leaves
+    [0.25,0.5,0.72].forEach(f=>{
+      const lx=x+(sway*f),ly=len*f,side=f<0.5?1:-1;
+      ctx.fillStyle=`rgba(21,128,61,0.65)`;
+      ctx.beginPath();ctx.ellipse(lx+side*16,ly,12,5.5,side*0.4,0,Math.PI*2);ctx.fill();
+      // Gold vein on leaf
+      ctx.strokeStyle='rgba(255,200,0,0.25)';ctx.lineWidth=0.8;
+      ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(lx+side*28,ly);ctx.stroke();
+    });
+  }
+
+  function drawBirdOfParadise(b,t){
+    const bob=Math.sin(t*0.02+b.phase)*3;
+    const tailWave=Math.sin(t*0.04+b.phase);
+    const [c1,c2,c3]=b.col;
+    const bx=b.x,by=b.y+bob;
+
+    ctx.save();ctx.scale(b.dir,1);ctx.translate(b.dir===1?0:-(bx*2),0);
+
+    // Magical tail feathers — long flowing glowing plumes
+    const tailCount=7;
+    for(let i=0;i<tailCount;i++){
+      const frac=i/tailCount;
+      const angle=-0.4+frac*0.8+tailWave*0.15;
+      const tLen=60+i*8+Math.sin(t*0.03+i)*10;
+      const tx2=bx-Math.cos(angle)*tLen;
+      const ty2=by+20+Math.sin(angle)*tLen;
+      // Tail glow
+      const tg=ctx.createLinearGradient(bx,by+20,tx2,ty2);
+      tg.addColorStop(0,c1+'cc');tg.addColorStop(0.5,c3+'aa');tg.addColorStop(1,c3+'00');
+      ctx.strokeStyle=tg;ctx.lineWidth=2.5-frac*0.8;ctx.lineCap='round';
+      ctx.beginPath();
+      ctx.moveTo(bx,by+20);
+      ctx.bezierCurveTo(bx-10,by+35,tx2+15,ty2-15,tx2,ty2);
+      ctx.stroke();
+      // Tail tip eye spot — magical
+      const gf=ctx.createRadialGradient(tx2,ty2,0,tx2,ty2,8);
+      gf.addColorStop(0,c3+'ff');gf.addColorStop(0.5,c1+'88');gf.addColorStop(1,'transparent');
+      ctx.fillStyle=gf;ctx.beginPath();ctx.arc(tx2,ty2,8,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=c3;ctx.beginPath();ctx.arc(tx2,ty2,3,0,Math.PI*2);ctx.fill();
+    }
+
+    // Body
+    ctx.fillStyle=c1;
+    ctx.beginPath();ctx.ellipse(bx,by+8,10,14,0,0,Math.PI*2);ctx.fill();
+    // Breast
+    ctx.fillStyle=c2;
+    ctx.beginPath();ctx.ellipse(bx+2,by+12,7,9,0.3,0,Math.PI*2);ctx.fill();
+    // Wing
+    ctx.fillStyle=c1+'cc';
+    ctx.beginPath();ctx.moveTo(bx,by+2);ctx.bezierCurveTo(bx+20,by-8,bx+22,by+8,bx+12,by+16);ctx.bezierCurveTo(bx+8,by+16,bx+2,by+14,bx,by+14);ctx.closePath();ctx.fill();
+    // Wing highlight
+    ctx.fillStyle='rgba(255,255,255,0.15)';
+    ctx.beginPath();ctx.moveTo(bx+2,by+2);ctx.bezierCurveTo(bx+16,by-4,bx+18,by+5,bx+10,by+12);ctx.closePath();ctx.fill();
+    // Head
+    ctx.fillStyle=c1;ctx.beginPath();ctx.arc(bx,by-8,9,0,Math.PI*2);ctx.fill();
+    // Crest feathers
+    for(let i=0;i<5;i++){
+      const ca=(-0.5+i*0.25)+tailWave*0.1;
+      ctx.strokeStyle=c3;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(bx,by-16);ctx.lineTo(bx+Math.sin(ca)*12,by-16-12-i*2);ctx.stroke();
+      ctx.fillStyle=c3;ctx.beginPath();ctx.arc(bx+Math.sin(ca)*12,by-16-12-i*2,2.5,0,Math.PI*2);ctx.fill();
+    }
+    // Beak
+    ctx.fillStyle='#fbbf24';
+    ctx.beginPath();ctx.moveTo(bx+9,by-9);ctx.lineTo(bx+20,by-8);ctx.lineTo(bx+9,by-6);ctx.closePath();ctx.fill();
+    // Eye
+    ctx.fillStyle='#000';ctx.beginPath();ctx.arc(bx+6,by-9,2.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='white';ctx.beginPath();ctx.arc(bx+5,by-10,1,0,Math.PI*2);ctx.fill();
+
+    // Magical glow around bird
+    const bg=ctx.createRadialGradient(bx,by,0,bx,by,40);
+    bg.addColorStop(0,`${c3}22`);bg.addColorStop(1,`${c3}00`);
+    ctx.fillStyle=bg;ctx.beginPath();ctx.arc(bx,by,40,0,Math.PI*2);ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawGround(){
+    const g=ctx.createLinearGradient(0,H*0.8,0,H);
+    g.addColorStop(0,'rgba(10,8,0,0)');g.addColorStop(0.3,'rgba(8,6,0,0.85)');g.addColorStop(1,'rgba(4,3,0,1)');
+    ctx.fillStyle=g;ctx.fillRect(0,H*0.8,W,H*0.2);
+    // Ground plants — richer tropical leaves
+    [[W*0.05,H],[W*0.25,H],[W*0.5,H*0.96],[W*0.75,H],[W*0.95,H]].forEach(([gx,gy])=>{
+      const gc=ctx.createRadialGradient(gx,gy,0,gx,gy,70);
+      gc.addColorStop(0,'rgba(16,80,20,0.6)');gc.addColorStop(0.5,'rgba(10,50,12,0.3)');gc.addColorStop(1,'rgba(10,50,12,0)');
+      ctx.fillStyle=gc;ctx.beginPath();ctx.ellipse(gx,gy,70,35,0,0,Math.PI*2);ctx.fill();
+      // Gold ground dust shimmer
+      const gs=ctx.createRadialGradient(gx,gy-10,0,gx,gy-10,25);
+      gs.addColorStop(0,'rgba(255,200,0,0.08)');gs.addColorStop(1,'rgba(255,200,0,0)');
+      ctx.fillStyle=gs;ctx.beginPath();ctx.ellipse(gx,gy-10,25,12,0,0,Math.PI*2);ctx.fill();
+    });
+  }
+
+  let ft=0;
+  function render(){
+    ft++;
+    ctx.clearRect(0,0,W,H);
+    drawBg();
+    drawSun(ft);
+    drawCanopy(ft);
+    vines.forEach(v=>drawVine(v.x,v.len,v.sw,ft));
+    birds.forEach(b=>drawBirdOfParadise(b,ft));
+    drawGround();
+
+    // Gold dust
+    dust.forEach(d=>{
+      d.life-=0.003;d.x+=d.vx;d.y+=d.vy;
+      if(d.life<=0){d.life=1;d.x=Math.random()*W;d.y=H*0.15+Math.random()*H*0.7;}
+      const a=Math.sin(d.life*Math.PI)*0.65;
+      ctx.fillStyle=`rgba(255,215,0,${a})`;
+      ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);ctx.fill();
+    });
+
+    // Fireflies — lanterns and flies
+    fires.forEach(f=>{
+      f.phase+=f.speed;f.x+=f.vx+Math.sin(f.phase*1.1)*0.3;f.y+=f.vy+Math.cos(f.phase*0.9)*0.22;
+      if(f.x<0)f.x=W;if(f.x>W)f.x=0;if(f.y<0)f.y=H*0.8;if(f.y>H*0.92)f.y=H*0.08;
+      f.trail.push({x:f.x,y:f.y});if(f.trail.length>10)f.trail.shift();
+      const glow=0.5+0.5*Math.sin(f.phase*2.5);
+      if(f.type==='lantern'){
+        // Large warm gold lantern — very visible, distinct
+        const lg=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r*8);
+        lg.addColorStop(0,`rgba(255,215,0,${glow*0.9})`);lg.addColorStop(0.3,`rgba(255,180,0,${glow*0.45})`);lg.addColorStop(0.65,`rgba(200,100,0,${glow*0.12})`);lg.addColorStop(1,'rgba(200,100,0,0)');
+        ctx.fillStyle=lg;ctx.beginPath();ctx.arc(f.x,f.y,f.r*8,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=`rgba(255,252,200,${glow})`;ctx.beginPath();ctx.arc(f.x,f.y,f.r*0.8,0,Math.PI*2);ctx.fill();
+        // Light rays
+        ctx.strokeStyle=`rgba(255,215,0,${glow*0.25})`;ctx.lineWidth=0.8;
+        for(let r=0;r<8;r++){const ra=(r/8)*Math.PI*2+f.phase*0.4;ctx.beginPath();ctx.moveTo(f.x+Math.cos(ra)*f.r,f.y+Math.sin(ra)*f.r);ctx.lineTo(f.x+Math.cos(ra)*f.r*6,f.y+Math.sin(ra)*f.r*6);ctx.stroke();}
+      } else {
+        // Small fast white-gold fly with trail
+        f.trail.forEach((pt,i)=>{ctx.fillStyle=`rgba(255,230,100,${(i/f.trail.length)*0.3*glow})`;ctx.beginPath();ctx.arc(pt.x,pt.y,f.r*0.5,0,Math.PI*2);ctx.fill();});
+        const sf=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r*3.5);
+        sf.addColorStop(0,`rgba(255,240,150,${glow*0.9})`);sf.addColorStop(1,'rgba(255,200,0,0)');
+        ctx.fillStyle=sf;ctx.beginPath();ctx.arc(f.x,f.y,f.r*3.5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=`rgba(255,255,220,${glow})`;ctx.beginPath();ctx.arc(f.x,f.y,f.r*0.8,0,Math.PI*2);ctx.fill();
+      }
+    });
+
+    mkAnim=requestAnimationFrame(render);
+  }
+  render();
+}
+</script>
+</body>
+</html>
