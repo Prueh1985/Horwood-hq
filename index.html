@@ -969,13 +969,13 @@ function initPickCanvas(){
     ctx.save();ctx.translate(b.x,by);ctx.rotate(b.rot);
     // Book glow
     const bg=ctx.createRadialGradient(0,0,0,0,0,b.w);
-    bg.addColorStop(0,b.col+'33');bg.addColorStop(1,b.col+'00');
-    ctx.fillStyle=bg;ctx.beginPath();ctx.ellipse(0,0,b.w*1.5,b.h*1.5,0,0,Math.PI*2);ctx.fill();
+    bg.addColorStop(0,b.col);bg.addColorStop(1,'rgba(0,0,0,0)');ctx.globalAlpha=0.2;
+    ctx.fillStyle=bg;ctx.beginPath();ctx.ellipse(0,0,b.w*1.5,b.h*1.5,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
     // Book body
     ctx.fillStyle='#1a1000';ctx.strokeStyle=b.col;ctx.lineWidth=1;
     ctx.beginPath();ctx.rect(-b.w/2,-b.h/2,b.w,b.h);ctx.fill();ctx.stroke();
     // Spine
-    ctx.fillStyle=b.col+'88';ctx.fillRect(-b.w/2,-b.h/2,5,b.h);
+    ctx.fillStyle=b.col;ctx.fillRect(-b.w/2,-b.h/2,5,b.h);
     // Pages open effect
     if(b.open){
       const openAmt=Math.abs(Math.sin(b.pagePhase))*0.6;
@@ -987,7 +987,7 @@ function initPickCanvas(){
       [-3,0,3,6].forEach(ly=>{ctx.beginPath();ctx.moveTo(3,ly);ctx.lineTo(b.w*0.35,ly);ctx.stroke();ctx.beginPath();ctx.moveTo(-3,ly);ctx.lineTo(-b.w*0.35,ly);ctx.stroke();});
     }
     // Magical rune on cover
-    ctx.font=`${b.h*0.4}px serif`;ctx.textAlign='center';ctx.fillStyle=b.col+'cc';
+    ctx.font=`${b.h*0.4}px serif`;ctx.textAlign='center';ctx.fillStyle=b.col;
     ctx.fillText(['ᚱ','ᚦ','ᚷ','ᚠ','ᚢ'][books.indexOf(b)%5],0,b.h*0.15);
     // Glow pulse
     const gp=0.3+0.2*Math.sin(b.phase*2);
@@ -1961,15 +1961,15 @@ function drawMonkeyJungle(){
       const ty2=by+20+Math.sin(angle)*tLen;
       // Tail glow
       const tg=ctx.createLinearGradient(bx,by+20,tx2,ty2);
-      tg.addColorStop(0,c1+'cc');tg.addColorStop(0.5,c3+'aa');tg.addColorStop(1,c3+'00');
-      ctx.strokeStyle=tg;ctx.lineWidth=2.5-frac*0.8;ctx.lineCap='round';
+      tg.addColorStop(0,c1);tg.addColorStop(0.5,c3);tg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.strokeStyle=tg;ctx.lineWidth=2.5-frac*0.8;ctx.lineCap='round';ctx.globalAlpha=0.8;
       ctx.beginPath();
       ctx.moveTo(bx,by+20);
       ctx.bezierCurveTo(bx-10,by+35,tx2+15,ty2-15,tx2,ty2);
       ctx.stroke();
       // Tail tip eye spot — magical
       const gf=ctx.createRadialGradient(tx2,ty2,0,tx2,ty2,8);
-      gf.addColorStop(0,c3+'ff');gf.addColorStop(0.5,c1+'88');gf.addColorStop(1,'rgba(0,0,0,0)');
+      gf.addColorStop(0,c3);gf.addColorStop(0.5,c1);gf.addColorStop(1,'rgba(0,0,0,0)');
       ctx.fillStyle=gf;ctx.beginPath();ctx.arc(tx2,ty2,8,0,Math.PI*2);ctx.fill();
       ctx.fillStyle=c3;ctx.beginPath();ctx.arc(tx2,ty2,3,0,Math.PI*2);ctx.fill();
     }
@@ -1981,7 +1981,7 @@ function drawMonkeyJungle(){
     ctx.fillStyle=c2;
     ctx.beginPath();ctx.ellipse(bx+2,by+12,7,9,0.3,0,Math.PI*2);ctx.fill();
     // Wing
-    ctx.fillStyle=c1+'cc';
+    ctx.fillStyle=c1;ctx.globalAlpha=0.75;
     ctx.beginPath();ctx.moveTo(bx,by+2);ctx.bezierCurveTo(bx+20,by-8,bx+22,by+8,bx+12,by+16);ctx.bezierCurveTo(bx+8,by+16,bx+2,by+14,bx,by+14);ctx.closePath();ctx.fill();
     // Wing highlight
     ctx.fillStyle='rgba(255,255,255,0.15)';
@@ -2004,9 +2004,10 @@ function drawMonkeyJungle(){
 
     // Magical glow around bird
     const bg=ctx.createRadialGradient(bx,by,0,bx,by,40);
-    bg.addColorStop(0,`${c3}22`);bg.addColorStop(1,`${c3}00`);
+    bg.addColorStop(0,c3);bg.addColorStop(1,'rgba(0,0,0,0)');ctx.globalAlpha=0.13;
     ctx.fillStyle=bg;ctx.beginPath();ctx.arc(bx,by,40,0,Math.PI*2);ctx.fill();
 
+    ctx.globalAlpha=1;
     ctx.restore();
   }
 
