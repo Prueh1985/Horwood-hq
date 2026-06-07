@@ -1459,10 +1459,10 @@ function goTo(id){
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
   if(id==='s-pick')setTimeout(initPickCanvas,50);
-  if(id==='s-monster')requestAnimationFrame(()=>drawMonsterDen());
-  if(id==='s-monkey')requestAnimationFrame(()=>drawMonkeyJungle());
-  if(id==='s-library-monster')requestAnimationFrame(()=>drawLibraryBg('lib-m-canvas','monster'));
-  if(id==='s-library-monkey')requestAnimationFrame(()=>drawLibraryBg('lib-mk-canvas','monkey'));
+  if(id==='s-monster')setTimeout(()=>drawMonsterDen(),50);
+  if(id==='s-monkey')setTimeout(()=>drawMonkeyJungle(),50);
+  if(id==='s-library-monster')setTimeout(()=>drawLibraryBg('lib-m-canvas','monster'),50);
+  if(id==='s-library-monkey')setTimeout(()=>drawLibraryBg('lib-mk-canvas','monkey'),50);
 }
 
 function flameTap(){masterEntry='';updateMasterDots();document.getElementById('master-err').textContent='';goTo('s-master');}
@@ -1592,7 +1592,8 @@ function launchPortal(user){
 function drawMonsterDen(){
   const canvas=document.getElementById('m-canvas');
   const world=document.getElementById('s-monster');
-  canvas.width=world.offsetWidth; canvas.height=world.offsetHeight;
+  canvas.width=world.offsetWidth||window.innerWidth;
+  canvas.height=world.offsetHeight||window.innerHeight;
   const W=canvas.width,H=canvas.height;
   const ctx=canvas.getContext('2d');
   if(mAnim)cancelAnimationFrame(mAnim);
@@ -1855,7 +1856,8 @@ function drawMonsterDen(){
 function drawMonkeyJungle(){
   const canvas=document.getElementById('mk-canvas');
   const world=document.getElementById('s-monkey');
-  canvas.width=world.offsetWidth;canvas.height=world.offsetHeight;
+  canvas.width=world.offsetWidth||window.innerWidth;
+  canvas.height=world.offsetHeight||window.innerHeight;
   const W=canvas.width,H=canvas.height;
   const ctx=canvas.getContext('2d');
   if(mkAnim)cancelAnimationFrame(mkAnim);
