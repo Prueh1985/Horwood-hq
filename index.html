@@ -1504,7 +1504,17 @@ function portalToLibrary(user){
 function portalBack(user){
   currentWorld=user;
   goTo('s-'+user);
-}const titles={billy:"Billy, Jackson & The World's Weirdest Aunt and Uncle",jackson:"Jackson and the Terrible Spectacular Lie"};document.getElementById('reader-title-bar').textContent=titles[who];document.getElementById('reader-back-btn').onclick=()=>goTo('s-'+currentWorld);goTo('s-reader');}
+}
+
+function openReader(who){
+  const titles={
+    billy:"Billy, Jackson and The World's Weirdest Aunt and Uncle",
+    jackson:"Jackson and the Terrible Spectacular Lie"
+  };
+  document.getElementById('reader-title-bar').textContent=titles[who];
+  document.getElementById('reader-back-btn').onclick=()=>goTo('s-'+currentWorld);
+  goTo('s-reader');
+}
 
 function launchPortal(user){
   const cfg={monster:{color:'#86efac',dark:'#0a1f0d',bg:'#07050a',label:'Monster'},monkey:{color:'#ffd700',dark:'#1f1400',bg:'#060800',label:'Monkey'}};
@@ -1956,10 +1966,10 @@ function drawMonkeyJungle(){
   }
 
   let ft=0;
-  function renderPick(){
+  function renderJungle(){
     ft++;
     ctx.clearRect(0,0,W,H);
-    drawMDenBg();
+    drawMJungleBg();
     drawSun(ft);
     drawCanopy(ft);
     vines.forEach(v=>drawVine(v.x,v.len,v.sw,ft));
