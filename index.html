@@ -969,7 +969,7 @@ function initPickCanvas(){
     ctx.fillStyle=bg;ctx.beginPath();ctx.ellipse(0,0,b.w*1.5,b.h*1.5,0,0,Math.PI*2);ctx.fill();
     // Book body
     ctx.fillStyle='#1a1000';ctx.strokeStyle=b.col;ctx.lineWidth=1;
-    ctx.beginPath();ctx.roundRect(-b.w/2,-b.h/2,b.w,b.h,3);ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.rect(-b.w/2,-b.h/2,b.w,b.h);ctx.fill();ctx.stroke();
     // Spine
     ctx.fillStyle=b.col+'88';ctx.fillRect(-b.w/2,-b.h/2,5,b.h);
     // Pages open effect
@@ -989,7 +989,7 @@ function initPickCanvas(){
     const gp=0.3+0.2*Math.sin(b.phase*2);
     ctx.shadowBlur=12*gp;ctx.shadowColor=b.col;
     ctx.strokeStyle=b.col;ctx.lineWidth=1+gp;
-    ctx.beginPath();ctx.roundRect(-b.w/2,-b.h/2,b.w,b.h,3);ctx.stroke();
+    ctx.beginPath();ctx.rect(-b.w/2,-b.h/2,b.w,b.h);ctx.stroke();
     ctx.shadowBlur=0;
     ctx.restore();
   }
@@ -1274,9 +1274,9 @@ function initPickCanvas(){
     const cbg=ctx.createLinearGradient(-20,crownBase-5,20,crownBase+4);
     cbg.addColorStop(0,'#c5a050');cbg.addColorStop(0.4,'#f5c842');cbg.addColorStop(0.6,'#f5c842');cbg.addColorStop(1,'#c5a050');
     ctx.fillStyle=cbg;
-    ctx.beginPath();ctx.roundRect(-20,crownBase-5,40,8,2);ctx.fill();
+    ctx.beginPath();ctx.rect(-20,crownBase-5,40,8);ctx.fill();
     ctx.strokeStyle='rgba(245,200,66,0.7)';ctx.lineWidth=1;
-    ctx.beginPath();ctx.roundRect(-20,crownBase-5,40,8,2);ctx.stroke();
+    ctx.beginPath();ctx.rect(-20,crownBase-5,40,8);ctx.stroke();
 
     // 7 flame spikes across the crown — all gold flames
     const flamePositions=[-17,-11,-5.5,0,5.5,11,17];
@@ -1433,19 +1433,19 @@ function initPickCanvas(){
   }
 
   let ft=0;
-  function render(){
+  function renderPickCanvas(){
     ft++;
     ctx.clearRect(0,0,W,H);
-    drawBg();
+    drawMDenBg();
     drawStars(ft);
     books.forEach(b=>drawBook(b,ft));
     flames.forEach(f=>drawFlame(f,ft));
     drawAuntyPrue(ft);
     drawSparkle(ft);
     drawOrva(ft);
-    pickAnim=requestAnimationFrame(render);
+    pickAnim=requestAnimationFrame(renderPickCanvas);
   }
-  render();
+  renderPickCanvas();
 }
 window.addEventListener('resize',()=>{if(document.getElementById('s-pick').classList.contains('active')){if(pickAnim)cancelAnimationFrame(pickAnim);initPickCanvas();}});
 setTimeout(initPickCanvas,100);
@@ -1733,7 +1733,7 @@ function drawMonsterDen(){
   }
 
   let frameT=0;
-  function render(){
+  function renderMonster(){
     frameT++;t=frameT;
     ctx.clearRect(0,0,W,H);
     drawSky();
@@ -1776,9 +1776,9 @@ function drawMonsterDen(){
       }
     });
 
-    mAnim=requestAnimationFrame(render);
+    mAnim=requestAnimationFrame(renderMonster);
   }
-  render();
+  renderMonster();
 }
 
 // ══════════════════════════════════
@@ -1812,7 +1812,7 @@ function drawMonkeyJungle(){
   // Vines
   const vines=[{x:W*0.04,len:H*0.45,sw:7},{x:W*0.2,len:H*0.3,sw:5},{x:W*0.42,len:H*0.38,sw:6},{x:W*0.65,len:H*0.33,sw:5},{x:W*0.82,len:H*0.4,sw:6},{x:W*0.96,len:H*0.28,sw:4}];
 
-  function drawBg(){
+  function drawMJungleBg(){
     const bg=ctx.createLinearGradient(0,0,0,H);
     bg.addColorStop(0,'#060400');bg.addColorStop(0.15,'#100800');bg.addColorStop(0.45,'#0c1200');bg.addColorStop(0.75,'#081000');bg.addColorStop(1,'#040800');
     ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
@@ -1956,10 +1956,10 @@ function drawMonkeyJungle(){
   }
 
   let ft=0;
-  function render(){
+  function renderPick(){
     ft++;
     ctx.clearRect(0,0,W,H);
-    drawBg();
+    drawMDenBg();
     drawSun(ft);
     drawCanopy(ft);
     vines.forEach(v=>drawVine(v.x,v.len,v.sw,ft));
@@ -2000,9 +2000,9 @@ function drawMonkeyJungle(){
       }
     });
 
-    mkAnim=requestAnimationFrame(render);
+    mkAnim=requestAnimationFrame(renderJungle);
   }
-  render();
+  renderJungle();
 }
 </script>
 </body>
