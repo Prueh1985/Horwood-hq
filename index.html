@@ -1440,7 +1440,7 @@ function initPickCanvas(){
   function renderPickCanvas(){
     ft++;
     ctx.clearRect(0,0,W,H);
-    drawMDenBg();
+    drawBg();
     drawStars(ft);
     books.forEach(b=>drawBook(b,ft));
     flames.forEach(f=>drawFlame(f,ft));
